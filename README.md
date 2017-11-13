@@ -2,13 +2,13 @@
 
 For organising technical papers and your notes/reviews on them.
 
-Download binaries for Windows, Mac or Linux from [[lyndonhill.com|http://www.lyndonhill.com/Projects/referenceorganiser.html]]
+Download binaries for Windows, Mac or Linux from [lyndonhill.com](http://www.lyndonhill.com/Projects/referenceorganiser.html)
 
 Source is under GNU GPL 3.
 
 # Building
 
-You will need [[Qt|http://qt.io]] version 5.
+You will need [Qt](http://qt.io) version 5.
 
 * Run qmake on the pro file
 * Run make
