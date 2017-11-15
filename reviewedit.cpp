@@ -239,7 +239,7 @@ void ReviewEdit::preSave()
       QFile::remove(old_filename);
     }
 
-    emit reviewSaved();
+    emit reviewSaved(createMode | file_moved);
 
     close();
   }

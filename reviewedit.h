@@ -62,7 +62,7 @@ public:
 
 signals:
   /// A review was saved/modified either new or citation changed thus requiring update of the GUI
-  void reviewSaved();
+  void reviewSaved(bool refresh_required);
 
 private slots:
   /// Generate citation key based on author names and year

@@ -116,7 +116,7 @@ private slots:
   void deleteReview();
 
   /// Update after a review was saved
-  void saveDone();
+  void saveDone(bool refresh);
 
 private:
   /// Load saved settings

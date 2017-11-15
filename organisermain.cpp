@@ -774,12 +774,13 @@ void OrganiserMain::deleteReview()
   }
 }
 
-void OrganiserMain::saveDone()
+void OrganiserMain::saveDone(bool refresh)
 {
   clearDetails();
+  ui->refList->clearSelection();
 
-  // Update reviews list
-  refreshView();
+  if(refresh)
+      refreshView();    // update reviews list
 }
 
 // Clear details from main window widgets
