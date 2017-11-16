@@ -259,7 +259,10 @@ void OrganiserMain::Search()
 
   if(!searchResults.empty() && (result == QDialog::Accepted))
   {
-    ui->viewCombo->setCurrentIndex(5); // set to results
+    if(ui->viewCombo->currentIndex() != 5)
+      ui->viewCombo->setCurrentIndex(5); // set to results
+    else
+      refreshView();
   }
 }
 

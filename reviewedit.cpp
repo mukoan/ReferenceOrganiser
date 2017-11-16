@@ -100,7 +100,7 @@ void ReviewEdit::generateKey()
 
     key = name_elements.last() + tr("EtAl") + ui->yearEdit->text();
 
-    if(!checkCitationUnique(key))
+    if(!checkCitationHasReview(key))
     {
       // -> Try AlphaBravoCharlie2000 = ABC2000
       key.clear();
@@ -115,20 +115,20 @@ void ReviewEdit::generateKey()
 
   // Check if key already exists in records
 
-  bool unique = checkCitationUnique(key);
+  bool unique = checkCitationHasReview(key);
 
   // -> Add a, b, c etc to key
   if(!unique)
   {
-    if(checkCitationUnique(key + "a"))
+    if(checkCitationHasReview(key + "a"))
     {
       key = key + "a";
     }
-    else if(checkCitationUnique(key + "b"))
+    else if(checkCitationHasReview(key + "b"))
     {
       key = key + "b";
     }
-    else if(checkCitationUnique(key + "c"))
+    else if(checkCitationHasReview(key + "c"))
     {
       key = key + "c";
     }
@@ -141,7 +141,8 @@ void ReviewEdit::generateKey()
   ui->citationEdit->setText(key);
 }
 
-bool ReviewEdit::checkCitationUnique(const QString &text)
+// Checks if review exists for citation
+bool ReviewEdit::checkCitationHasReview(const QString &text)
 {
   if(!records) return(false);
 
@@ -152,7 +153,8 @@ bool ReviewEdit::checkCitationUnique(const QString &text)
   {
     if((*records)[i].citation == text)
     {
-      exists = true;
+      if(!(*records)[i].reviewPath.isEmpty())
+        exists = true;
       break;
     }
   }
@@ -191,7 +193,7 @@ void ReviewEdit::checkCitation(const QString &text)
   if(!createMode && (text == originalCitation))
     ui->saveButton->setEnabled(true);
   else
-    ui->saveButton->setEnabled(!text.isEmpty() && checkCitationUnique(text));
+    ui->saveButton->setEnabled(!text.isEmpty() && checkCitationHasReview(text));
 }
 
 // Only possible if authors and year set
@@ -211,7 +213,7 @@ void ReviewEdit::preSave()
   if(createMode)
   {
     // Check if unique citation
-    if(!checkCitationUnique(ui->citationEdit->text()))
+    if(!checkCitationHasReview(ui->citationEdit->text()))
     {
       QMessageBox::warning(this, tr("Citation in Use"), tr("The citation %1 is already being used for another paper. Choose another citation").arg(ui->citationEdit->text()));
       return; // don't save

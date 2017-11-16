@@ -69,7 +69,7 @@ private slots:
   void generateKey();
 
   /// Set save button enabled only if citation text edit has something
-  /// and citation is unique
+  /// and citation is unique/has no review
   void checkCitation(const QString &text);
 
   // Only possible if authors and year set
@@ -85,7 +85,7 @@ private:
   /// Save the review with these details; overwrite if already exists
   bool saveReview(const QString &citation, const QString &title, const QString &authors, const QString &review);
 
-  bool checkCitationUnique(const QString &text);
+  bool checkCitationHasReview(const QString &text);
 
   Ui::ReviewEditDialog *ui;
 
