@@ -47,65 +47,7 @@ bool LoadReview(const QString &filename, QString &review)
 // Get embedded details from the review
 void ParseReview(const QString &filename, const QString &review, QString &authors, QString &title, QString &year)
 {
-  int year_num;
-
-  // Get year from filename; find digits from end of string
-
-  int  year_end     = 0;
-  int  year_start   = 0;
-  bool number_start = false;
-
-  QString::const_reverse_iterator rit = filename.rbegin();
-  while(rit != filename.rend())
-  {
-    if(number_start && !rit->isDigit())   // reached end of number
-      break;
-
-    if(!number_start && rit->isDigit())
-    {
-      number_start = true;
-    }
-
-    if(!number_start) year_end++;
-    year_start++;
-    ++rit;
-  }
-
-  year_start--;
-
-  if(!number_start || ((year_start >= filename.size()) && (year_end >= filename.size())))
-  {
-    std::cerr << "Did not parse a year from filename " << filename.toStdString() << "\n";
-    year_num = -1;
-    year.clear();
-  }
-  else
-  {
-    // std::cerr << "Year substring : " << year_start << ".." << year_end << "\n";
-
-    // Convert year_start and year_end to string indices
-
-    year_start = filename.size()-year_start-1;
-    year_end   = filename.size()-year_end-1;
-
-    // std::cerr << "Year characters : " << year_start << ".." << year_end << "\n";
-
-    // Get year portion of string
-
-    QString year_string = filename.mid(year_start, year_end-year_start+1);
-    // std::cerr << "Year as string [" << year_string.toStdString() << "]\n";
-    year_num = year_string.toInt();
-
-    // Handle 2 digit years
-
-    if(year_num < 50)
-      year_num += 2000;
-    else if((year_num > 50) && (year_num < 100))
-      year_num += 1900;
-
-    // std::cerr << "Parse year from filename, " << year << "\n";
-    year = QString::number(year_num);
-  }
+  ParseYearFromCitation(filename, year);
 
   // Title on first line
 
@@ -127,11 +69,71 @@ void ParseReview(const QString &filename, const QString &review, QString &author
 
     if((potential_authors[0] == '{') && (potential_authors[potential_authors.size()-1] == '}'))
     {
-      // line is reference
+      // line is reference - this is from an deprecated version of the review formatting
     }
     else
       authors = potential_authors;
   }
+}
+
+// Find the year appended at the end of the string
+bool ParseYearFromCitation(const QString &cite, QString &year)
+{
+  int year_num;
+
+  // Get year from filename; find digits from end of string
+
+  int  year_end     = 0;
+  int  year_start   = 0;
+  bool number_start = false;
+
+  QString::const_reverse_iterator rit = cite.rbegin();
+  while(rit != cite.rend())
+  {
+    if(number_start && !rit->isDigit())   // reached end of number
+      break;
+
+    if(!number_start && rit->isDigit())
+    {
+      number_start = true;
+    }
+
+    if(!number_start) year_end++;
+     year_start++;
+    ++rit;
+  }
+
+  year_start--;
+
+  if(!number_start || ((year_start >= cite.size()) && (year_end >= cite.size())))
+  {
+    year_num = -1;
+    year.clear();
+    return(false);
+  }
+  else
+  {
+    // Convert year_start and year_end to string indices
+
+    year_start = cite.size()-year_start-1;
+    year_end   = cite.size()-year_end-1;
+
+    // Get year portion of string
+
+    QString year_string = cite.mid(year_start, year_end-year_start+1);
+    year_num = year_string.toInt();
+
+    // Handle 2 digit years
+
+    if(year_num < 50)
+      year_num += 2000;
+    else if((year_num > 50) && (year_num < 100))
+      year_num += 1900;
+
+    year = QString::number(year_num);
+  }
+
+  return(true);
 }
 
 // Trim title and authors line from review

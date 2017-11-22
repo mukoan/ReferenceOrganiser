@@ -14,6 +14,7 @@
 #include <QMessageBox>
 
 #include "reviewedit.h"
+#include "reviewparser.h"
 
 
 ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
@@ -207,7 +208,6 @@ void ReviewEdit::checkGeneratePossible(const QString &)
 void ReviewEdit::preSave()
 {
   bool file_moved = false;
-
   QString dest_file;
 
   if(createMode)
@@ -231,6 +231,18 @@ void ReviewEdit::preSave()
     }
     else
       dest_file = reviewPath;
+  }
+
+  // Get year from citation key and check against year edit
+  QString citation_year;
+  ParseYearFromCitation(ui->citationEdit->text(), citation_year);
+  {
+    QString edit_year = ui->yearEdit->text();
+    if(!edit_year.isEmpty() && (edit_year != citation_year))
+    {
+      QMessageBox::warning(this, tr("Year Problem"), tr("In this version the year is stored in the citation key and must match the year value. Modify the citation or clear the year value."));
+      return; // don't save
+    }
   }
 
   if(saveReview(dest_file, ui->titleEdit->text(), ui->authorsEdit->text(), ui->reviewEdit->toPlainText()))

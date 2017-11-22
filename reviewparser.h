@@ -22,6 +22,14 @@ bool LoadReview(const QString &filename, QString &review);
 /// Get embedded details from the review
 void ParseReview(const QString &filename, const QString &review, QString &authors, QString &title, QString &year);
 
+/**
+ * Find the year appended at the end of the string
+ * @param cite   citation
+ * @param year   output (if found)
+ * @return true if a year was found
+ */
+bool ParseYearFromCitation(const QString &cite, QString &year);
+
 /// Trim title and authors line from review
 void TrimReviewHeader(QString &review);
 
