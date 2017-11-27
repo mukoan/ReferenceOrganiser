@@ -81,12 +81,11 @@ private slots:
    */
   void displayFormattedDetails(const QString &filename, const QString &review_text);
 
-  /**
-   * Select a review
-   * @param current   review that was selected in the main window
-   * @param previous  last review that was selected (unused)
-   */
-  void selectItem(QListWidgetItem *current, QListWidgetItem *previous);
+  /// Review was selected, show review
+  void selectItem();
+
+  /// Select the given citation
+  void selectCitation(const QString &cite);
 
   /// User clicked on link in review
   void gotoLinkedReview(const QUrl &link);
@@ -115,7 +114,10 @@ private slots:
   /// Delete a review
   void deleteReview();
 
-  /// Update after a review was saved
+  /**
+   * Update after a review was saved
+   * @param refresh    update review list
+   */
   void saveDone(bool refresh);
 
 private:
@@ -131,17 +133,16 @@ private:
   /// Clear review shown in GUI
   void clearDetails();
 
-  Ui::OrganiserMain *ui;
+  Ui::OrganiserMain *ui;                 ///< User interface
 
-  QStringList reviewsPaths;            ///< List of paths to reviews
-  QStringList papersPaths;             ///< List of paths to papers
+  QStringList reviewsPaths;              ///< List of paths to reviews
+  QStringList papersPaths;               ///< List of paths to papers
 
-  QVector<PaperRecord> records;        ///< List of all records
-  QVector<PaperRecord> searchResults;  ///< List of records obtained from searching
+  QVector<PaperRecord> records;          ///< List of all records
+  QVector<PaperRecord> searchResults;    ///< List of records obtained from searching
   QThread       *scanThread;
   ReviewScanner *scanner;
 
-  int prefReviewOutputPath;            ///< Preferred path in reviewsPaths to store new reviews
 
   /// Full path, including extension
   QString currentPaperPath;
@@ -149,18 +150,23 @@ private:
   /// Including headers
   QString currentReviewText;
 
-  // Citation generation
-  int prefMaximumCiteAuthors;
-  int prefMaximumCiteCharacters;
+  // Citation generation //
 
-  // Viewers
-  QString prefPDFViewer;
-  QString prefPSViewer;
-  QString prefDOCViewer;
-  QString prefTextViewer;
-  QString prefBackupViewer;
+  int     prefMaximumCiteAuthors;        ///< Maximum number of names in a citation key
+  int     prefMaximumCiteCharacters;     ///< Maximum number of characters in a citation key
 
-  QString lastExportedHTML;            ///< Location where HTML export saved file
+  // Preference settings for viewers for different file formats //
+
+  QString prefPDFViewer;                 ///< PDF viewer
+  QString prefPSViewer;                  ///< PostScript viewer
+  QString prefDOCViewer;                 ///< MS Word viewer
+  QString prefTextViewer;                ///< Plain text viewer
+  QString prefBackupViewer;              ///< Program to use if none of the above
+
+  // Miscellaneous preferences and state //
+
+  int     prefReviewOutputPath;          ///< Preferred path in reviewsPaths to store new reviews
+  QString lastExportedHTML;              ///< Location where HTML export saved file
 };
 
 #endif // ORGANISERMAIN_H

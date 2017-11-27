@@ -67,7 +67,8 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
   connect(ui->deleteButton,       &QPushButton::released,           this, &OrganiserMain::deleteReview);
   connect(ui->searchButton,       &QPushButton::released,           this, &OrganiserMain::Search);
 
-  connect(ui->refList,            &QListWidget::currentItemChanged, this, &OrganiserMain::selectItem);
+  connect(ui->refList,            &QListWidget::itemSelectionChanged, this, &OrganiserMain::selectItem);
+
   connect(ui->viewCombo,          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                                                                     this, &OrganiserMain::changeViewMode);
   connect(ui->detailsViewer,      &QTextBrowser::anchorClicked,     this, &OrganiserMain::gotoLinkedReview);
@@ -341,10 +342,26 @@ void OrganiserMain::showDetailsForReview(const QString fname)
 }
 
 // Select a review
-void OrganiserMain::selectItem(QListWidgetItem *current, QListWidgetItem *)
+void OrganiserMain::selectItem()
 {
+  QListWidgetItem *current = ui->refList->currentItem();
   if(current)
     showDetailsForReview(current->text());
+}
+
+// Select the given citation
+void OrganiserMain::selectCitation(const QString &cite)
+{
+  for(int c = 0; c < ui->refList->count(); c++)
+  {
+    QListWidgetItem *item = ui->refList->item(c);
+    if(item->text() == cite)
+    {
+      ui->refList->setCurrentItem(item);
+      item->setSelected(true);
+      break;
+    }
+  }
 }
 
 // User clicked on link in review
@@ -777,13 +794,32 @@ void OrganiserMain::deleteReview()
   }
 }
 
+// Edit/New review dialog closed after saving
 void OrganiserMain::saveDone(bool refresh)
 {
+  QListWidgetItem *current = ui->refList->currentItem();
+  QString current_citation;
+  if(current)
+    current_citation = current->text();
+
   clearDetails();
-  ui->refList->clearSelection();
 
   if(refresh)
-      refreshView();    // update reviews list
+  {
+    // Rescan reviews list and select citation
+
+    ui->refList->clearSelection();
+    refreshView();    // update reviews list
+
+    if(!current_citation.isEmpty())
+      selectCitation(current_citation);
+  }
+  else
+  {
+    // Show details after edit
+    if(!current_citation.isEmpty())
+      showDetailsForReview(current_citation);
+  }
 }
 
 // Clear details from main window widgets

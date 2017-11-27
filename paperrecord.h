@@ -18,12 +18,11 @@ public:
   QString reviewPath;  ///< Path to the review
   QString paperPath;   ///< Path to the paper
 
-  /// Sort function
+  /// Comparison for sorting
   bool operator<(const PaperRecord &rhs) const
   {
     return(citation < rhs.citation);
   }
 };
-
 
 #endif // PAPERRECORD_H
