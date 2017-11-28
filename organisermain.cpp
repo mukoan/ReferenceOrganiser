@@ -588,11 +588,11 @@ void OrganiserMain::openCurrentPaper()
 {
   if(!currentPaperPath.isEmpty())
   {
-    QString extension = currentPaperPath.section('.', -1);
+    QString extension = currentPaperPath.section('.', -1).toLower();
     QString viewer;
     QStringList arguments;
 
-    QString viewer_string;
+    QString viewer_string = prefBackupViewer;
 
     if(extension == "doc")
     {
@@ -606,13 +606,13 @@ void OrganiserMain::openCurrentPaper()
     {
       viewer_string = prefPSViewer;
     }
-    else if((extension == "ps.gz") || (extension == "pdf"))
+    else if(extension == "pdf")
+    {
+      viewer_string = prefPDFViewer;
+    }
+    else if(currentPaperPath.section('.', -2, -1).toLower() == "ps.gz")
     {
       viewer_string = prefPSViewer;
-    }
-    else
-    {
-      viewer_string = prefBackupViewer;
     }
 
     QStringList cli_components = viewer_string.split(" ");
@@ -627,7 +627,7 @@ void OrganiserMain::openCurrentPaper()
     bool result = QProcess::startDetached(viewer, arguments);
     if(!result)
     {
-      std::cerr << "Failed to open viewer.\n";
+      QMessageBox::critical(this, tr("Open Paper"), tr("Failed to open viewer"));
     }
   }
 }
@@ -660,6 +660,12 @@ void OrganiserMain::changeViewMode(int)
 void OrganiserMain::editReview()
 {
   if(!ui->refList->currentItem()) return;
+
+  if((prefReviewOutputPath < 0) || (reviewsPaths.count() <= 0))
+  {
+    QMessageBox::warning(this, tr("Edit Review"), tr("A directory for storing reviews must be configured in Preferences"));
+    return;
+  }
 
   QString cite, review, authors, title, year;
   cite   = ui->refList->currentItem()->text();
@@ -705,18 +711,6 @@ void OrganiserMain::editReview()
   review_diag->SetMaximumCharacters(prefMaximumCiteCharacters);
   review_diag->SetRecords(records);
 
-  if(prefReviewOutputPath < 0)
-  {
-    std::cerr << "No chosen review output path\n";
-    return;
-  }
-
-  if(reviewsPaths.count() <= 0)
-  {
-    std::cerr << "No review output paths\n";
-    return;
-  }
-
   review_diag->SetTargetDir(reviewsPaths[prefReviewOutputPath]); // In case citation changed
 
   review_diag->setWindowTitle(tr("Edit %1").arg(cite));
@@ -728,23 +722,18 @@ void OrganiserMain::editReview()
 
 // Create a new review
 void OrganiserMain::newReview()
-{
+{  
+  if((prefReviewOutputPath < 0) || (reviewsPaths.count() <= 0))
+  {
+    QMessageBox::warning(this, tr("New Review"), tr("A directory for storing reviews must be configured in Preferences"));
+    return;
+  }
+
   ReviewEdit *review_diag = new ReviewEdit(true, this);
   review_diag->SetMaximumAuthors(prefMaximumCiteAuthors);
   review_diag->SetMaximumCharacters(prefMaximumCiteCharacters);
   review_diag->SetRecords(records);
 
-  if(prefReviewOutputPath < 0)
-  {
-    std::cerr << "No chosen review output path\n";
-    return;
-  }
-
-  if(reviewsPaths.count() <= 0)
-  {
-    std::cerr << "No review output paths\n";
-    return;
-  }
 
   review_diag->SetTargetDir(reviewsPaths[prefReviewOutputPath]);
   review_diag->setWindowTitle(tr("New Review"));
