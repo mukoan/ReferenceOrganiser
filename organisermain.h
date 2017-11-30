@@ -17,7 +17,7 @@
 #include "paperrecord.h"
 #include "reviewscanner.h"
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 namespace Ui {
 class OrganiserMain;

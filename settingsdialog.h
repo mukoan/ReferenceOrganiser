@@ -57,6 +57,7 @@ public:
   void SetBackupViewerCLI(const QString &command);
   QString GetBackupViewerCLI() const;
 
+  /// User changed directories used for searching for reviews and papers
   bool GetPathsChanged() const { return(pathsChanged); }
 
 private slots:
@@ -70,6 +71,7 @@ private:
   /// Scan reviewsPathsList and update chosenReviewPathCombo
   void updateReviewPathChooser();
 
+  /// User interface
   Ui::SettingsDialog *ui;
 
   /// Search paths were edited

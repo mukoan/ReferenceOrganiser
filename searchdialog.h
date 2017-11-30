@@ -15,6 +15,9 @@
 
 #include "paperrecord.h"
 
+/**
+ * @brief Object to perform search in another thread
+ */
 class Searcher : public QObject
 {
 Q_OBJECT
@@ -34,8 +37,10 @@ public:
     kwReview = review;
   }
 
+  /// Authors to search for, CSV format
   void SetAuthors(const QString &terms) { searchAuthors = terms; }
 
+  /// Set range (in years) of papers to search
   void SetYears(int start, int end) { yearStart = start; yearStop = end; }
 
 public slots:
@@ -56,21 +61,29 @@ private:
   const QVector<PaperRecord> *records;
 
   QString keywords;
+
+  /// Check title and review for keywords
   bool kwTitle, kwReview;
 
+  ///
   QString searchAuthors;
   int yearStart, yearStop;
 
+  /// Keep the search running
   bool doRun;
 };
+
 
 namespace Ui {
 class SearchDialog;
 }
 
+/**
+ * @brief Dialog to handle search queries
+ */
 class SearchDialog : public QDialog
 {
-Q_OBJECT
+  Q_OBJECT
 
 public:
   explicit SearchDialog(QWidget *parent = 0);
