@@ -735,6 +735,30 @@ void OrganiserMain::newReview()
   review_diag->SetRecords(records);
 
 
+  QString citation = ui->refList->currentItem()->text();
+  if(!citation.isEmpty())
+  {
+    // Check if current item has review
+
+    bool has_review = false;
+    for(int r = 0; r < records.size(); r++)
+    {
+      if(records[r].citation == citation)
+      {
+        has_review = !records[r].reviewPath.isEmpty();
+        break;
+      }
+    }
+
+    // Unreviewed papers or all papers but this paper has no review
+    if((ui->viewCombo->currentIndex() == 3) ||
+       ((ui->viewCombo->currentIndex() == 1) && (!has_review)))
+    {
+      // If review doesn't exist yet then use paper name as citation
+      review_diag->SetCitationKey(citation);
+    }
+  }
+
   review_diag->SetTargetDir(reviewsPaths[prefReviewOutputPath]);
   review_diag->setWindowTitle(tr("New Review"));
 
