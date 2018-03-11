@@ -31,6 +31,7 @@ void ReviewScanner::process()
   doRun = true;
 
   QVector<PaperRecord> new_records;
+  QStringList duplicate_reviews;
 
   // Scan reviews
   for(int p = 0; p < rpaths.size(); p++)
@@ -72,7 +73,6 @@ void ReviewScanner::process()
         pr.reviewPath = rpaths[p] + QDir::separator() + fname;
         new_records.push_back(pr);
 
-        // std::cerr << "Found citation: " << fname.toStdString() << " at " << pr.reviewPath.toStdString() << "\n";
         ++fi;
       }
     }
@@ -90,8 +90,6 @@ void ReviewScanner::process()
 
   for(int a = 0; a < all_paper_dirs.size(); a++)
   {
-    // std::cerr << "(scanning papers path at " << all_paper_dirs[a].toStdString() << ")\n";
-
     QDir path(all_paper_dirs[a]);
 
     QFlags<QDir::Filter>  myspec  = QDir::AllEntries | QDir::NoDotAndDotDot;
@@ -102,8 +100,6 @@ void ReviewScanner::process()
 
     if(listing.size())
     {
-      // std::cerr << " -> " << listing.size() << " entries in this directory\n";
-
       QList<QFileInfo>::Iterator fi;
       fi = listing.begin();
 
@@ -114,12 +110,9 @@ void ReviewScanner::process()
         if(fi->isDir())
         {
           all_paper_dirs.push_back(fi->absoluteFilePath());
-          // std::cerr << " -> subdirectory at " << fi->absoluteFilePath().toStdString() << " added to search list\n";
           ++fi;
           continue;
         }
-
-        basename = fi->fileName().section('.', 0, 0);
 
         // Check file is a paper
         QString extension = fi->fileName().section('.', -1).toLower();
@@ -131,12 +124,16 @@ void ReviewScanner::process()
             ++fi;
             continue;
           }
+          else
+            basename = fi->fileName().section('.', 0, -3);
         }
         else if((extension != "pdf") && (extension != "ps") && (extension != "doc"))
         {
           ++fi;
           continue;
         }
+        else
+          basename = fi->fileName().section('.', 0, -2);
 
         // Check if paper is already in records
 
@@ -151,7 +148,6 @@ void ReviewScanner::process()
             {
               in_records = true;
               new_records[r].paperPath = all_paper_dirs[a] + QDir::separator() + fi->fileName();
-              // std::cerr << "Matched paper to review: " << new_records[r].citation.toStdString() << " at " << new_records[r].paperPath.toStdString() << "\n";
               break;
             }
           }
@@ -168,7 +164,6 @@ void ReviewScanner::process()
           pr.citation  = basename;
           pr.paperPath = all_paper_dirs[a] + QDir::separator() + fi->fileName();
           new_records.push_back(pr);
-          // std::cerr << "Found paper wo review: " << basename.toStdString() << " at " << pr.paperPath.toStdString() << "\n";
         }
 
         ++fi;
@@ -179,6 +174,16 @@ void ReviewScanner::process()
   // Sort by citation or by review or paper if only they exist
   std::sort(new_records.begin(), new_records.end());
 
+  // Find duplicates: records are sorted so they should be next to each other
+  for(int r = 1; r < new_records.size(); r++)
+  {
+    if(new_records[r].citation == new_records[r-1].citation)
+    {
+      duplicate_reviews.push_back(new_records[r].citation);
+    }
+  }
+
+  emit foundDuplicates(duplicate_reviews);
   emit results(new_records);
   emit finished();
 }

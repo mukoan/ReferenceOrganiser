@@ -11,6 +11,7 @@
 #include "reviewedit.h"
 #include "searchdialog.h"
 #include "reviewparser.h"
+#include "recordlistitem.h"
 
 #include <iostream>
 #include <algorithm>
@@ -56,6 +57,7 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
 
   connect(ui->actionExport_HTML,  &QAction::triggered,              this, &OrganiserMain::ExportHTML);
   connect(ui->actionPreferences,  &QAction::triggered,              this, &OrganiserMain::Settings);
+  connect(ui->actionStatus,       &QAction::triggered,              this, &OrganiserMain::showStatus);
 
   ui->actionAbout->setMenuRole(QAction::AboutRole);
   ui->actionPreferences->setMenuRole(QAction::PreferencesRole);
@@ -96,6 +98,7 @@ void OrganiserMain::ScanRecords()
   scanner->moveToThread(scanThread);
   connect(scanThread, SIGNAL(started()), scanner, SLOT(process()));
   connect(scanner, SIGNAL(results(const QVector<PaperRecord> &)), this, SLOT(setRecords(const QVector<PaperRecord> &)));
+  connect(scanner, SIGNAL(foundDuplicates(const QStringList &)), this, SLOT(setDuplicates(const QStringList &)));
   // connect(ui->scanButton, SIGNAL(clicked()), scanner, SLOT(halt()));
   connect(scanner, SIGNAL(finished()), scanner, SLOT(deleteLater()));
   connect(scanThread, SIGNAL(finished()), scanThread, SLOT(deleteLater()));
@@ -120,7 +123,7 @@ void OrganiserMain::UpdateView()
 
     for(int r = 0; r < searchResults.size(); r++)
     {
-      QListWidgetItem *element = new QListWidgetItem(ui->refList);
+      RecordListItem *element = new RecordListItem(ui->refList, r);
       element->setText(searchResults[r].citation);
       selected_records++;
     }
@@ -134,7 +137,7 @@ void OrganiserMain::UpdateView()
         case 0: // reviews
         if(!records[r].reviewPath.isEmpty())
         {
-          QListWidgetItem *element = new QListWidgetItem(ui->refList);
+          RecordListItem *element = new RecordListItem(ui->refList, r);
           element->setText(records[r].citation);
           selected_records++;
         }
@@ -143,7 +146,7 @@ void OrganiserMain::UpdateView()
         case 1: // papers
         if(!records[r].paperPath.isEmpty())
         {
-          QListWidgetItem *element = new QListWidgetItem(ui->refList);
+          RecordListItem *element = new RecordListItem(ui->refList, r);
           element->setText(records[r].citation);
           selected_records++;
         }
@@ -152,7 +155,7 @@ void OrganiserMain::UpdateView()
         case 2: // reviewed papers
         if((!records[r].reviewPath.isEmpty()) && (!records[r].paperPath.isEmpty()))
         {
-          QListWidgetItem *element = new QListWidgetItem(ui->refList);
+          RecordListItem *element = new RecordListItem(ui->refList, r);
           element->setText(records[r].citation);
           selected_records++;
         }
@@ -161,14 +164,14 @@ void OrganiserMain::UpdateView()
         case 3: // unreviewed papers
         if((!records[r].paperPath.isEmpty()) && (records[r].reviewPath.isEmpty()))
         {
-          QListWidgetItem *element = new QListWidgetItem(ui->refList);
+          RecordListItem *element = new RecordListItem(ui->refList, r);
           element->setText(records[r].citation);
           selected_records++;
         }
         break;
 
         case 4: // all
-        QListWidgetItem *element = new QListWidgetItem(ui->refList);
+        RecordListItem *element = new RecordListItem(ui->refList, r);
         element->setText(records[r].citation);
         selected_records++;
         break;
@@ -185,7 +188,7 @@ void OrganiserMain::About()
   QMessageBox::about(this, "About Reference Organiser",
                            "Reference Organiser " VERSION "\n"
                            "Technical Paper Organiser\n\n"
-                           "Copyright 2017, Lyndon Hill\n"
+                           "Copyright 2018, Lyndon Hill\n"
                            "http://www.lyndonhill.com");
 }
 
@@ -341,12 +344,86 @@ void OrganiserMain::showDetailsForReview(const QString fname)
     ui->reviewPathLabel->setText(tr("No review available"));
 }
 
+// Set to current review
+void OrganiserMain::showDetailsForReview(int index)
+{
+  bool examine_search = false;  // looking at searchResults
+
+  if(ui->viewCombo->currentIndex() == 5)
+    examine_search = true;
+
+  if(index < 0) return;
+  if(examine_search && (index >= searchResults.size())) return;
+  else if((index < 0) || (index >= records.size())) return;
+
+  clearDetails();
+
+  // Get current review
+
+  QString path_to_review;
+  if(examine_search)
+    path_to_review = searchResults[index].reviewPath;
+  else
+    path_to_review = records[index].reviewPath;
+
+  bool have_review = false;
+
+  if(!path_to_review.isEmpty())
+  {
+    FILE *fp;
+    if((fp = fopen(path_to_review.toUtf8().constData(), "rb")))
+    {
+      fseek(fp, 0, SEEK_END);
+      size_t data_size = ftell(fp);
+      rewind(fp);
+
+      char *data = (char *)malloc(data_size+1);
+      if(!data)
+      {
+        fclose(fp);
+        return;
+      }
+
+      fread(data, data_size, 1, fp);
+      fclose(fp);
+
+      data[data_size] = 0;
+
+      currentReviewText = QString(data);
+
+      // Parse review (no database)
+      displayFormattedDetails(path_to_review, currentReviewText);
+      have_review = true;
+      free(data);
+    }
+  }
+
+  // Look to see if paper is available
+  findPaper(index);
+
+  if(have_review)
+  {
+    path_to_review = QDir::toNativeSeparators(path_to_review);
+    ui->reviewPathLabel->setText(path_to_review);
+  }
+  else
+    ui->reviewPathLabel->setText(tr("No review available"));
+}
+
+// Citations in database that are repeated
+void OrganiserMain::setDuplicates(const QStringList &duplicates)
+{
+  duplicateRefs = duplicates;
+}
+
 // Select a review
 void OrganiserMain::selectItem()
 {
-  QListWidgetItem *current = ui->refList->currentItem();
+  RecordListItem *current = dynamic_cast<RecordListItem *>(ui->refList->currentItem());
   if(current)
-    showDetailsForReview(current->text());
+  {
+    showDetailsForReview(current->GetRecordIndex());
+  }
 }
 
 // Select the given citation
@@ -552,7 +629,6 @@ void OrganiserMain::displayFormattedDetails(const QString &filename, const QStri
 }
 
 // Find paper for given file reference
-// TODO handle multiple papers for reference in path
 void OrganiserMain::findPaper(const QString &filename)
 {
   currentPaperPath.clear();
@@ -565,7 +641,6 @@ void OrganiserMain::findPaper(const QString &filename)
       if(QFile::exists(records[r].paperPath))
       {
         currentPaperPath = records[r].paperPath;
-        // std::cerr << "Found paper at " << currentPaperPath.toStdString() << "\n";
         break;
       }
     }
@@ -580,6 +655,43 @@ void OrganiserMain::findPaper(const QString &filename)
   {
     ui->openPaperButton->setToolTip("");
     // std::cerr << "No paper found for " << filename.toStdString() << "\n";
+  }
+}
+
+// Find paper for given index
+void OrganiserMain::findPaper(int index)
+{
+  bool examine_search = false;  // looking at searchResults
+
+  if(ui->viewCombo->currentIndex() == 5)
+    examine_search = true;
+
+  if(index < 0) return;
+  if((examine_search) && (index >= searchResults.size())) return;
+  else if(index >= records.size()) return;
+
+  currentPaperPath.clear();
+  ui->openPaperButton->setEnabled(false);
+
+  if(examine_search)
+  {
+    if(QFile::exists(searchResults[index].paperPath))
+      currentPaperPath = searchResults[index].paperPath;
+  }
+  else
+  {
+    if(QFile::exists(records[index].paperPath))
+      currentPaperPath = records[index].paperPath;
+  }
+
+  if(!currentPaperPath.isEmpty())
+  {
+    ui->openPaperButton->setEnabled(true);
+    ui->openPaperButton->setToolTip(QDir::toNativeSeparators(currentPaperPath));
+  }
+  else
+  {
+    ui->openPaperButton->setToolTip("");
   }
 }
 
@@ -630,6 +742,123 @@ void OrganiserMain::openCurrentPaper()
       QMessageBox::critical(this, tr("Open Paper"), tr("Failed to open viewer"));
     }
   }
+}
+
+// Show the review database status
+void OrganiserMain::showStatus()
+{
+  // Clear all
+  ui->openPaperButton->setEnabled(false);
+  ui->detailsViewer->clear();
+  ui->reviewPathLabel->clear();
+
+  // Get statistics
+
+  int papers_on_disk = 0;
+  int total_reviews  = 0;
+  int reviews_without_papers = 0;
+  int papers_with_reviews = 0;
+  int papers_without_reviews = 0;
+
+  for(int r = 0; r < records.size(); r++)
+  {
+    if(!records[r].reviewPath.isEmpty())
+    {
+      total_reviews++;
+      if(records[r].paperPath.isEmpty())
+        reviews_without_papers++;
+      else
+      {
+        papers_with_reviews++;
+        papers_on_disk++;
+      }
+    }
+    else
+    {
+      if(!records[r].paperPath.isEmpty())
+      {
+        papers_without_reviews++;
+        papers_on_disk++;
+      }
+    }
+  }
+
+  // Format status
+
+  QString formatted_text("<html><body><p><h1>Reference Database Status</h1></p><br>");
+
+  formatted_text.append("<table cellspacing=\"20\">");
+  formatted_text.append(tr("<tr><th>Papers on disk</th><td>%1</td></tr>").arg(papers_on_disk));
+  formatted_text.append(tr("<tr><th> ... of which reviewed</th><td>%1</td></tr>").arg(papers_with_reviews));
+  formatted_text.append(tr("<tr><th>Papers to be reviewed</th><td>%1</td></tr>").arg(papers_without_reviews));
+  formatted_text.append(tr("<tr><th>Total reviews</th><td>%1</td></tr>").arg(total_reviews));
+  formatted_text.append(tr("<tr><th>Reviews without papers</th><td>%1</td></tr>").arg(reviews_without_papers));
+
+  formatted_text.append("</table>");
+
+
+  if((papers_on_disk > 40) && (total_reviews > 20))
+  {
+    QString rating = tr("(unrated)");
+    float frating = (float)(papers_with_reviews*100)/(papers_on_disk);
+
+    int irating = (int)(frating);
+    irating += (reviews_without_papers*40)/(total_reviews);  // reviews should have some merit even when missing paper
+    irating += (papers_without_reviews*5)/(papers_on_disk);  // having a paper but not reading it has small merit
+
+    if(irating >= 90)
+      rating = tr("Elite");
+    else if(irating > 75)
+      rating = tr("Guru");
+    else if(irating > 60)
+      rating = tr("Expert");
+    else if(irating > 40)
+      rating = tr("Consultant");
+    else if(irating > 20)
+      rating = tr("Advisor");
+    else
+      rating = tr("Novice");
+
+    formatted_text.append("<hr>");
+    formatted_text.append(tr("<p>Your database is rated <i>%1</i> quality.</p>").arg(rating));
+  }
+
+
+  if(!duplicateRefs.empty())
+  {
+    formatted_text.append("<hr><b>Warning! Duplicate References Detected</b><br>");
+
+    for(int r = 1; r < records.size(); r++)
+    {
+      if(records[r].citation == records[r-1].citation)
+      {
+        formatted_text.append(QString("<p>Reference %1<br>").arg(records[r].citation));
+
+        if(records[r-1].reviewPath != records[r].reviewPath)
+        {
+          formatted_text.append(QString(" has reviews at<br>%1 <b>and</b> %2<br>").arg(records[r-1].reviewPath).arg(records[r].reviewPath));
+        }
+
+        if(records[r-1].paperPath != records[r].paperPath)
+        {
+          formatted_text.append(QString("has papers at<br>%1 <b>and</b> %2<br>").arg(records[r-1].paperPath).arg(records[r].paperPath));
+        }
+
+        formatted_text.append("</p>");
+
+/*
+        std::cerr << "Scanner found duplicate: " << new_records[r].citation.toStdString() << "\n"
+                  << " A: " << new_records[r-1].reviewPath.toStdString() << " : " << new_records[r-1].paperPath.toStdString() << "\n"
+                  << " B: " << new_records[r].reviewPath.toStdString() << " : " << new_records[r].paperPath.toStdString() << "\n";
+*/
+      }
+    }
+  }
+
+  formatted_text.append("</body></html>");
+
+  ui->detailsViewer->setHtml(formatted_text);
+
 }
 
 // Rescan/refresh
@@ -734,6 +963,30 @@ void OrganiserMain::newReview()
   review_diag->SetMaximumCharacters(prefMaximumCiteCharacters);
   review_diag->SetRecords(records);
 
+
+  QString citation = ui->refList->currentItem()->text();
+  if(!citation.isEmpty())
+  {
+    // Check if current item has review
+
+    bool has_review = false;
+    for(int r = 0; r < records.size(); r++)
+    {
+      if(records[r].citation == citation)
+      {
+        has_review = !records[r].reviewPath.isEmpty();
+        break;
+      }
+    }
+
+    // Unreviewed papers or all papers but this paper has no review
+    if((ui->viewCombo->currentIndex() == 3) ||
+       ((ui->viewCombo->currentIndex() == 1) && (!has_review)))
+    {
+      // If review doesn't exist yet then use paper name as citation
+      review_diag->SetCitationKey(citation);
+    }
+  }
 
   review_diag->SetTargetDir(reviewsPaths[prefReviewOutputPath]);
   review_diag->setWindowTitle(tr("New Review"));

@@ -68,11 +68,15 @@ private slots:
   /// Set records
   void setRecords(const QVector<PaperRecord> &recs);
 
+  /// Citations in database that are repeated
+  void setDuplicates(const QStringList &duplicates);
+
   /**
    * Set to current review
    * @param fname   citation, no path
    */
   void showDetailsForReview(const QString fname);
+  void showDetailsForReview(int index);
 
   /**
    * Display formatted text for review
@@ -92,6 +96,9 @@ private slots:
 
   /// Open the current paper
   void openCurrentPaper();
+
+  /// Show the review database status
+  void showStatus();
 
   /// Rescan/refresh
   void rescanPaths();
@@ -130,6 +137,9 @@ private:
   /// Find paper for given file reference, filename does not include extension
   void findPaper(const QString &filename);
 
+  // Find paper for given index
+  void findPaper(int index);
+
   /// Clear review shown in GUI
   void clearDetails();
 
@@ -143,6 +153,7 @@ private:
   QThread       *scanThread;
   ReviewScanner *scanner;
 
+  QStringList duplicateRefs;             ///< List of references that have duplicates
 
   /// Full path, including extension
   QString currentPaperPath;
