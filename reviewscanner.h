@@ -31,6 +31,9 @@ signals:
   /// Results
   void results(const QVector<PaperRecord> &records);
 
+  /// Duplicate citations, could be review or paper without review but with same name
+  void foundDuplicates(const QStringList &duplicates);
+
   /// Scan is finished
   void finished();
 

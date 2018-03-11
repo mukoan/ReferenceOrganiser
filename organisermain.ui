@@ -275,6 +275,7 @@
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionPreferences"/>
+    <addaction name="actionStatus"/>
    </widget>
    <addaction name="menuPreferences"/>
    <addaction name="menuMisc"/>
@@ -336,6 +337,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionStatus">
+   <property name="text">
+    <string>Status</string>
    </property>
   </action>
  </widget>

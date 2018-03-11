@@ -28,7 +28,8 @@ HEADERS  += organisermain.h \
     reviewparser.h \
     busyindicator.h \
     reviewscanner.h \
-    reviewedit.h
+    reviewedit.h \
+    recordlistitem.h
 
 FORMS    += organisermain.ui \
     settings.ui \
