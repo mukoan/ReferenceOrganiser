@@ -19,7 +19,7 @@
 
 ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ReviewEditDialog), createMode(create)
+    ui(new Ui::ReviewEditDialog), createMode(create), hasChanged(false)
 {
   ui->setupUi(this);
 
@@ -27,9 +27,13 @@ ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
   maxCiteLength = 32;
   records       = nullptr;
 
-  ui->saveButton->setEnabled(!createMode);
+  if(!createMode)
+    ui->saveButton->setEnabled(true);
+  else
+    ui->saveButton->setEnabled(false);
 
-  if(createMode) ui->generateButton->setEnabled(false);
+  ui->generateButton->setEnabled(false);
+  ui->generateButton->setToolTip(tr("Enter authors and year"));
 
   connect(ui->citationEdit,   &QLineEdit::textChanged, this, &ReviewEdit::checkCitation);
   connect(ui->generateButton, &QPushButton::released,  this, &ReviewEdit::generateKey);
@@ -38,14 +42,15 @@ ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
 
   connect(ui->yearEdit,       &QLineEdit::textChanged, this, &ReviewEdit::checkGeneratePossible);
   connect(ui->authorsEdit,    &QLineEdit::textChanged, this, &ReviewEdit::checkGeneratePossible);
+  connect(ui->reviewEdit,     &QPlainTextEdit::textChanged, this, &ReviewEdit::reviewChanged);
 }
 
 void ReviewEdit::SetCitationKey(const QString &cite)
 {
-  ui->citationEdit->setText(cite);
   originalCitation = cite;
+  ui->citationEdit->setText(cite);
 
-  ui->saveButton->setEnabled(!createMode);
+  // ui->saveButton->setEnabled(!createMode);
 }
 
 void ReviewEdit::SetAuthors(const QString &authors)
@@ -195,6 +200,8 @@ void ReviewEdit::checkCitation(const QString &text)
     ui->saveButton->setEnabled(true);
   else
     ui->saveButton->setEnabled(!text.isEmpty() && checkCitationHasReview(text));
+
+  hasChanged = true;
 }
 
 // Only possible if authors and year set
@@ -202,6 +209,19 @@ void ReviewEdit::checkGeneratePossible(const QString &)
 {
   bool possible = (!ui->authorsEdit->text().isEmpty()) && (!ui->yearEdit->text().isEmpty());
   ui->generateButton->setEnabled(possible);
+
+  if(possible)
+    ui->generateButton->setToolTip(tr("Generate citation key from authors and year"));
+  else
+    ui->generateButton->setToolTip(tr("Enter authors and year"));
+
+  hasChanged = true;
+}
+
+// The review text changed
+void ReviewEdit::reviewChanged()
+{
+  hasChanged = true;
 }
 
 // Check review is suitable for saving and save if it is
@@ -267,20 +287,36 @@ void ReviewEdit::preSave()
 // Close, but check saved first
 void ReviewEdit::endEdit()
 {
+  bool check_with_user = false;
+  QString title_text, message_text;
+
   // Check if there is a review that should be saved
   if(createMode)
   {
     // Warn if any details filled in that haven't been saved
     if((!ui->titleEdit->text().isEmpty()) || (!ui->authorsEdit->text().isEmpty()) || (!ui->reviewEdit->toPlainText().isEmpty()))
-    {      
-      QMessageBox unsaved(QMessageBox::Warning, tr("Unsaved Review"),
-                          tr("There is unsaved data, are you sure you want to discard it?"),
-                          QMessageBox::Cancel | QMessageBox::Discard,
-                          this);
-
-      if(unsaved.exec() == QMessageBox::Cancel)
-          return; // abort close
+    {
+      check_with_user = true;
+      title_text      = tr("Unsaved Review");
+      message_text    = tr("There is unsaved data, are you sure you want to discard it?");
     }
+  }
+  else if(hasChanged)
+  {
+    check_with_user = true;
+    title_text      = tr("Unsaved Changes");
+    message_text    = tr("There are unsaved changes, are you sure you want to discard them?");
+  }
+
+  if(check_with_user)
+  {
+    QMessageBox unsaved(QMessageBox::Warning, title_text, message_text,
+                        QMessageBox::Cancel | QMessageBox::Discard,
+                        this);
+
+    if(unsaved.exec() == QMessageBox::Cancel)
+      return; // abort close
+
   }
 
   close();

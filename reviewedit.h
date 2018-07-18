@@ -75,6 +75,9 @@ private slots:
   // Only possible if authors and year set
   void checkGeneratePossible(const QString &);
 
+  // The review text changed
+  void reviewChanged();
+
   /// Check review is suitable for saving and save if it is
   void preSave();
 
@@ -109,6 +112,9 @@ private:
 
   /// The review is being created and does not exist yet
   bool createMode;
+
+  /// The review and details have been changed
+  bool hasChanged;
 };
 
 #endif // REVIEWEDIT_H

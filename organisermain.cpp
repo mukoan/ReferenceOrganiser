@@ -400,7 +400,6 @@ void OrganiserMain::showDetailsForReview(int index)
 
   // Look to see if paper is available
   findPaper(index);
-
   if(have_review)
   {
     path_to_review = QDir::toNativeSeparators(path_to_review);
@@ -638,6 +637,8 @@ void OrganiserMain::findPaper(const QString &filename)
   {
     if(records[r].citation == filename)
     {
+      // if(records[r].paperPath.isEmpty()) std::cerr << "Empty paper path\n";
+
       if(QFile::exists(records[r].paperPath))
       {
         currentPaperPath = records[r].paperPath;
@@ -675,12 +676,12 @@ void OrganiserMain::findPaper(int index)
 
   if(examine_search)
   {
-    if(QFile::exists(searchResults[index].paperPath))
+    if((!searchResults[index].paperPath.isEmpty()) && (QFile::exists(searchResults[index].paperPath)))
       currentPaperPath = searchResults[index].paperPath;
   }
   else
   {
-    if(QFile::exists(records[index].paperPath))
+    if((!records[index].paperPath.isEmpty()) && (QFile::exists(records[index].paperPath)))
       currentPaperPath = records[index].paperPath;
   }
 
