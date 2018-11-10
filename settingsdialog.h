@@ -60,6 +60,9 @@ public:
   /// User changed directories used for searching for reviews and papers
   bool GetPathsChanged() const { return(pathsChanged); }
 
+  /// Set preferred path for saving new reviews to
+  void SetReviewPathIndex(int i);
+
 private slots:
   void AddPapersPath();
   void AddReviewsPath();

@@ -78,13 +78,19 @@ private slots:
   // The review text changed
   void reviewChanged();
 
-  /// Check review is suitable for saving and save if it is
-  void preSave();
+  /// Save, close window
+  void saveAndClose();
+
+  /// Save but don't close window
+  void saveWithoutClosing();
 
   /// Close, but check saved first
   void endEdit();
 
 private:
+  /// Check review is suitable for saving and save if it is
+  void preSave(bool close_window);
+
   /// Save the review with these details; overwrite if already exists
   bool saveReview(const QString &citation, const QString &title, const QString &authors, const QString &review);
 

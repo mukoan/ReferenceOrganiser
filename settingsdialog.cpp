@@ -118,6 +118,12 @@ int SettingsDialog::GetChosenReviewPathIndex() const
   return(ui->chosenReviewPathCombo->currentIndex());
 }
 
+// Set preferred path for saving new reviews to
+void SettingsDialog::SetReviewPathIndex(int i)
+{
+  ui->chosenReviewPathCombo->setCurrentIndex(i);
+}
+
 void SettingsDialog::AddPapersPath()
 {
   QString new_path = QFileDialog::getExistingDirectory(this, tr("Add paper path"));

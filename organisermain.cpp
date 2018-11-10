@@ -205,6 +205,7 @@ void OrganiserMain::Settings()
   prefs->SetReviewsPaths(reviewsPaths);
   prefs->SetMaxCitationAuthors(prefMaximumCiteAuthors);
   prefs->SetMaxCitationCharacters(prefMaximumCiteCharacters);
+  prefs->SetReviewPathIndex(prefReviewOutputPath);
 
   prefs->SetPDFViewerCLI(prefPDFViewer);
   prefs->SetPSViewerCLI(prefPSViewer);

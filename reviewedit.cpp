@@ -37,7 +37,8 @@ ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
 
   connect(ui->citationEdit,   &QLineEdit::textChanged, this, &ReviewEdit::checkCitation);
   connect(ui->generateButton, &QPushButton::released,  this, &ReviewEdit::generateKey);
-  connect(ui->saveButton,     &QPushButton::released,  this, &ReviewEdit::preSave);
+  connect(ui->saveButton,     &QPushButton::released,  this, &ReviewEdit::saveAndClose);
+  connect(ui->saveAndContinueButton, &QPushButton::released, this, &ReviewEdit::saveWithoutClosing);
   connect(ui->cancelButton,   &QPushButton::released,  this, &ReviewEdit::endEdit);
 
   connect(ui->yearEdit,       &QLineEdit::textChanged, this, &ReviewEdit::checkGeneratePossible);
@@ -86,7 +87,11 @@ void ReviewEdit::generateKey()
 
   // Extract surnames and concatenate
   // Note: this won't do a good job for peopple with multiple surnames unless they are hyphenated
-  QStringList names = ui->authorsEdit->text().split(',', QString::SkipEmptyParts);
+
+  // Replace "and" with comma; need space before and after in case name contains "and"
+  QString author_names = ui->authorsEdit->text().replace(tr(" and "), ", ", Qt::CaseInsensitive);
+
+  QStringList names = author_names.split(',', QString::SkipEmptyParts);
   if(names.empty()) return;
 
   if(names.size() <= maxAuthors)
@@ -197,9 +202,15 @@ QString ReviewEdit::GetReviewText() const
 void ReviewEdit::checkCitation(const QString &text)
 {  
   if(!createMode && (text == originalCitation))
+  {
     ui->saveButton->setEnabled(true);
+    ui->saveAndContinueButton->setEnabled(true);
+  }
   else
+  {
     ui->saveButton->setEnabled(!text.isEmpty() && checkCitationHasReview(text));
+    ui->saveAndContinueButton->setEnabled(!text.isEmpty() && checkCitationHasReview(text));
+  }
 
   hasChanged = true;
 }
@@ -224,8 +235,14 @@ void ReviewEdit::reviewChanged()
   hasChanged = true;
 }
 
+// Save review
+void ReviewEdit::saveAndClose()
+{
+  preSave(true);
+}
+
 // Check review is suitable for saving and save if it is
-void ReviewEdit::preSave()
+void ReviewEdit::preSave(bool close_window)
 {
   bool file_moved = false;
   QString dest_file;
@@ -275,13 +292,19 @@ void ReviewEdit::preSave()
 
     emit reviewSaved(createMode | file_moved);
 
-    close();
+    if(close_window) close();
   }
   else
   {
     // Error message
     QMessageBox::warning(this, tr("Review could not be saved"), tr("There was an error saving the review"));
   }
+}
+
+// Save but don't close window
+void ReviewEdit::saveWithoutClosing()
+{
+  preSave(false);
 }
 
 // Close, but check saved first
