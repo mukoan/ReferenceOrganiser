@@ -18,6 +18,13 @@ public:
   QString reviewPath;  ///< Path to the review
   QString paperPath;   ///< Path to the paper
 
+  void Clear()
+  {
+    citation.clear();
+    reviewPath.clear();
+    paperPath.clear();
+  }
+
   /// Comparison for sorting
   bool operator<(const PaperRecord &rhs) const
   {
@@ -25,4 +32,4 @@ public:
   }
 };
 
-#endif // PAPERRECORD_H
+#endif  // PAPERRECORD_H
