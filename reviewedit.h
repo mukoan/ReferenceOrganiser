@@ -60,6 +60,10 @@ public:
   /// Full path to review being edited
   void SetReviewPath(const QString &location) { reviewPath = location; }
 
+protected:
+  /// Don't let user close the dialog by escape key
+  void 	keyPressEvent(QKeyEvent *e);
+
 signals:
   /// A review was saved/modified either new or citation changed thus requiring update of the GUI
   void reviewSaved(bool refresh_required);
@@ -88,8 +92,11 @@ private slots:
   void endEdit();
 
 private:
-  /// Check review is suitable for saving and save if it is
-  void preSave(bool close_window);
+  /**
+   * Check review is suitable for saving and save if it is
+   * @return true if review is saved
+   */
+  bool preSave(bool close_window);
 
   /// Save the review with these details; overwrite if already exists
   bool saveReview(const QString &citation, const QString &title, const QString &authors, const QString &review);
@@ -123,4 +130,4 @@ private:
   bool hasChanged;
 };
 
-#endif // REVIEWEDIT_H
+#endif  // REVIEWEDIT_H

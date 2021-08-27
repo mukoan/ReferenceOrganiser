@@ -22,7 +22,6 @@ ReviewEdit::ReviewEdit(bool create, QWidget *parent) :
     ui(new Ui::ReviewEditDialog), createMode(create), hasChanged(false)
 {
   ui->setupUi(this);
-
   maxAuthors    = 5;
   maxCiteLength = 32;
   records       = nullptr;
@@ -79,6 +78,15 @@ void ReviewEdit::SetRecords(const QVector<PaperRecord> &rec)
   records = &rec;
 }
 
+// Don't let user close the dialog by escape key
+void ReviewEdit::keyPressEvent(QKeyEvent *e)
+{
+  if(e->key() == Qt::Key_Escape)
+    return;
+  else
+    QDialog::keyPressEvent(e);
+}
+
 // Generate citation key based on author names and year
 void ReviewEdit::generateKey()
 {
@@ -91,14 +99,16 @@ void ReviewEdit::generateKey()
   // Replace "and" with comma; need space before and after in case name contains "and"
   QString author_names = ui->authorsEdit->text().replace(tr(" and "), ", ", Qt::CaseInsensitive);
 
-  QStringList names = author_names.split(',', QString::SkipEmptyParts);
+  author_names.replace("-", ""); // remove hyphens, usually in double barrelled names
+
+  QStringList names = author_names.split(',', Qt::SkipEmptyParts);
   if(names.empty()) return;
 
   if(names.size() <= maxAuthors)
   {
     for(int n = 0; n < names.size(); n++)
     {
-      QStringList name_elements = names[n].split(' ', QString::SkipEmptyParts); // assume family name last
+      QStringList name_elements = names[n].split(' ', Qt::SkipEmptyParts); // assume family name last
       cat_authors.append(name_elements.last());
     }
     key = cat_authors + ui->yearEdit->text();
@@ -107,7 +117,7 @@ void ReviewEdit::generateKey()
   if((names.size() > maxAuthors) || (key.size() > maxCiteLength))
   {
     // Single author name in case of too many authors or too long string
-    QStringList name_elements = names[0].split(' ', QString::SkipEmptyParts); // assume family name last
+    QStringList name_elements = names[0].split(' ', Qt::SkipEmptyParts); // assume family name last
 
     key = name_elements.last() + tr("EtAl") + ui->yearEdit->text();
 
@@ -117,7 +127,7 @@ void ReviewEdit::generateKey()
       key.clear();
       for(int a = 0; a < names.size(); a++)
       {
-        QStringList name_elements = names[a].split(' ', QString::SkipEmptyParts); // assume family name last
+        QStringList name_elements = names[a].split(' ', Qt::SkipEmptyParts); // assume family name last
         key.append(name_elements.last()[0]);
       }
       key = key + ui->yearEdit->text();
@@ -242,7 +252,7 @@ void ReviewEdit::saveAndClose()
 }
 
 // Check review is suitable for saving and save if it is
-void ReviewEdit::preSave(bool close_window)
+bool ReviewEdit::preSave(bool close_window)
 {
   bool file_moved = false;
   QString dest_file;
@@ -253,7 +263,7 @@ void ReviewEdit::preSave(bool close_window)
     if(!checkCitationHasReview(ui->citationEdit->text()))
     {
       QMessageBox::warning(this, tr("Citation in Use"), tr("The citation %1 is already being used for another paper. Choose another citation").arg(ui->citationEdit->text()));
-      return; // don't save
+      return(false); // don't save
     }
 
     dest_file = targetDirectory + QDir::separator() + ui->citationEdit->text();
@@ -278,7 +288,7 @@ void ReviewEdit::preSave(bool close_window)
     if(!edit_year.isEmpty() && (edit_year != citation_year))
     {
       QMessageBox::warning(this, tr("Year Problem"), tr("In this version the year is stored in the citation key and must match the year value. Modify the citation or clear the year value."));
-      return; // don't save
+      return(false); // don't save
     }
   }
 
@@ -290,6 +300,7 @@ void ReviewEdit::preSave(bool close_window)
       QFile::remove(old_filename);
     }
 
+    reviewPath = dest_file;
     emit reviewSaved(createMode | file_moved);
 
     if(close_window) close();
@@ -298,13 +309,21 @@ void ReviewEdit::preSave(bool close_window)
   {
     // Error message
     QMessageBox::warning(this, tr("Review could not be saved"), tr("There was an error saving the review"));
+    return(false);
   }
+
+  return(true);
 }
 
 // Save but don't close window
 void ReviewEdit::saveWithoutClosing()
 {
-  preSave(false);
+  if(preSave(false))
+  {
+    createMode = false;
+    hasChanged = false;
+    originalCitation = ui->citationEdit->text();
+  }
 }
 
 // Close, but check saved first
@@ -348,6 +367,8 @@ void ReviewEdit::endEdit()
 // Save a review
 bool ReviewEdit::saveReview(const QString &path, const QString &title, const QString &authors, const QString &text)
 {
+  if(path.isEmpty()) return(false);
+
   std::ofstream op(path.toUtf8().constData());
   if(op.bad())
   {
