@@ -13,7 +13,7 @@
 #include <QStringList>
 #include <QThread>
 
-#include "paperrecord.h"
+#include "papermeta.h"
 
 /**
  * @brief Object to perform search in another thread
@@ -27,7 +27,7 @@ public:
   Searcher();
 
   /// Set the data to search
-  void SetData(const QVector<PaperRecord> *recs) { records = recs; }
+  void SetData(const QVector<PaperMeta> *recs) { records = recs; }
 
   /// Set search terms
   void SetKeywords(const QString &words, bool title, bool review)
@@ -43,6 +43,9 @@ public:
   /// Set range (in years) of papers to search
   void SetYears(int start, int end) { yearStart = start; yearStop = end; }
 
+  /// Path to paper saught
+  void SetPaperPath(const QString &path) { paperFile = path; }
+
 public slots:
   /// Begin search
   void process();
@@ -52,22 +55,26 @@ public slots:
 
 signals:
   /// A result
-  void result(const QString &cite);
+  void result(const QString &cite, const QString &title);
 
   /// Search is finished
   void finished();
 
 private:
-  const QVector<PaperRecord> *records;
+  /// A pointer to the main database
+  const QVector<PaperMeta> *records;
 
+  /// Keywords that are being searched for
   QString keywords;
 
   /// Check title and review for keywords
   bool kwTitle, kwReview;
 
-  ///
+  /// Search parameters
   QString searchAuthors;
   int yearStart, yearStop;
+
+  QString paperFile;
 
   /// Keep the search running
   bool doRun;
@@ -90,7 +97,7 @@ public:
   ~SearchDialog();
 
   /// Set the records that can be searched
-  void SetRecords(const QVector<PaperRecord> &recs)
+  void SetRecords(const QVector<PaperMeta> &recs)
   {
     citations = &recs;
   }
@@ -98,21 +105,18 @@ public:
   /// Get results from search
   QStringList GetResults();
 
+  /// Where read papers get ingested to
+  void SetPapersRead(const QString &loc) { papersReadDir = loc; }
+
 private slots:
   /// Perform search
   void search();
 
-  /// Enable/disable author search UI element
-  void setAuthorsSearchEnabled(bool tf);
-
-  /// Enable/disable year range UI elements
-  void setYearSearchEnabled(bool tf);
-
-  /// Enable/disable keywords UI elements
-  void setKeywordsSearchEnabled(bool tf);
+  /// Open dialog to select a paper
+  void selectPaperPath();
 
   /// Add a result from the search in progress
-  void addResult(const QString &cite);
+  void addResult(const QString &cite, const QString &title);
 
   /// Search has finished
   void endSearch();
@@ -123,10 +127,12 @@ private:
   QThread  *searchThread;
   Searcher *searchObj;
 
-  const QVector<PaperRecord> *citations;
+  const QVector<PaperMeta> *citations;
   QStringList resultList;
+
+  QString papersReadDir;
 
   int numberResults;
 };
 
-#endif // SEARCHDIALOG_H
+#endif  // SEARCHDIALOG_H

@@ -4,36 +4,51 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+CONFIG   += c++11
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 TARGET = ReferenceOrganiser
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        organisermain.cpp \
+SOURCES += main.cpp \
+    createdatabasedialog.cpp \
+    databasefilereader.cpp \
+    databasefilewriter.cpp \
+    databasehandler.cpp \
+    databasenamedialog.cpp \
+    metadialog.cpp \
+    organisermain.cpp \
     settingsdialog.cpp \
     searchdialog.cpp \
     reviewparser.cpp \
     busyindicator.cpp \
-    reviewscanner.cpp \
-    reviewedit.cpp
+    reviewscanner.cpp
+
 
 HEADERS  += organisermain.h \
+    createdatabasedialog.h \
+    databasefilereader.h \
+    databasefilewriter.h \
+    databasehandler.h \
+    databasenamedialog.h \
+    metadialog.h \
     settingsdialog.h \
     searchdialog.h \
-    paperrecord.h \
     reviewparser.h \
     busyindicator.h \
     reviewscanner.h \
-    reviewedit.h \
-    recordlistitem.h
+    recordlistitem.h \
+    papermeta.h
 
 FORMS    += organisermain.ui \
+    createdatabasedialog.ui \
+    databasenamedialog.ui \
+    metadialog.ui \
     settings.ui \
-    newreview.ui \
     searchdialog.ui
 
 RESOURCES += \

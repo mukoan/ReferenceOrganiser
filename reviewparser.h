@@ -40,4 +40,4 @@ void TrimReviewHeader(QString &review);
  */
 QStringList ParseAuthors(const QString &authors_csv);
 
-#endif // REVIEWPARSER_H
+#endif  // REVIEWPARSER_H

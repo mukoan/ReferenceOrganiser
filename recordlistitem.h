@@ -8,6 +8,8 @@
 #ifndef RECORDLISTITEM_H
 #define RECORDLISTITEM_H
 
+#include <QListWidgetItem>
+
 class RecordListItem : public QListWidgetItem
 {
 public:
@@ -21,4 +23,4 @@ private:
   int recordIndex;
 };
 
-#endif // RECORDLISTITEM_H
+#endif  // RECORDLISTITEM_H

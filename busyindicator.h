@@ -67,6 +67,9 @@ private:
   /// Colour of ellipse
   QColor fillColour;
 
+  /// Count of how many times the indicator has started
+  int starts;
+
   /// Animation is running
   bool running;
 
@@ -74,4 +77,4 @@ private:
   bool isHighDPI;
 };
 
-#endif
+#endif  // BUSYINDICATOR_H

@@ -12,7 +12,7 @@
 #include <QStringList>
 #include <QVector>
 
-#include "paperrecord.h"
+#include "papermeta.h"
 
 /**
  * @brief Scan paths and find all papers and reviews
@@ -29,7 +29,7 @@ public:
 
 signals:
   /// Results
-  void results(const QVector<PaperRecord> &records);
+  void results(const QVector<PaperMeta> &records);
 
   /// Duplicate citations, could be review or paper without review but with same name
   void foundDuplicates(const QStringList &duplicates);
@@ -50,4 +50,4 @@ private:
   QStringList rpaths, ppaths;
 };
 
-#endif // REVIEWSCANNER_H
+#endif  // REVIEWSCANNER_H

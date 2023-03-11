@@ -25,16 +25,11 @@ public:
   SettingsDialog(QWidget *parent = 0);
 
   void SetPapersPaths(const QStringList &papers);
-  void SetReviewsPaths(const QStringList &reviews);
 
-  void SetChosenReviewPath(const QString &dest);
-  QString GetChosenReviewPath() const;
-
-  void SetChosenReviewPathIndex(int index);
-  int GetChosenReviewPathIndex() const;
+  void SetReadPapersPath(const QString &dest);
+  QString GetReadPapersPath() const;
 
   QStringList GetPapersPaths() const;
-  QStringList GetReviewsPaths() const;
 
   void SetMaxCitationAuthors(int max);
   int GetMaxCitationAuthors() const;
@@ -42,14 +37,17 @@ public:
   void SetMaxCitationCharacters(int max);
   int GetMaxCitationCharacters() const;
 
+  void SetDocViewerCLI(const QString &command);
+  QString GetDocViewerCLI() const;
+
+  void SetODTViewerCLI(const QString &command);
+  QString GetODTViewerCLI() const;
+
   void SetPDFViewerCLI(const QString &command);
   QString GetPDFViewerCLI() const;
 
   void SetPSViewerCLI(const QString &command);
   QString GetPSViewerCLI() const;
-
-  void SetDocViewerCLI(const QString &command);
-  QString GetDocViewerCLI() const;
 
   void SetTextViewerCLI(const QString &command);
   QString GetTextViewerCLI() const;
@@ -60,19 +58,14 @@ public:
   /// User changed directories used for searching for reviews and papers
   bool GetPathsChanged() const { return(pathsChanged); }
 
-  /// Set preferred path for saving new reviews to
-  void SetReviewPathIndex(int i);
-
 private slots:
   void AddPapersPath();
-  void AddReviewsPath();
 
   void RemoveSelectedPapersPath();
-  void RemoveSelectedReviewsPath();
+
+  void SelectReadPapersPath();
 
 private:
-  /// Scan reviewsPathsList and update chosenReviewPathCombo
-  void updateReviewPathChooser();
 
   /// User interface
   Ui::SettingsDialog *ui;
@@ -81,4 +74,4 @@ private:
   bool pathsChanged;
 };
 
-#endif // SETTINGSDIALOG_H
+#endif  // SETTINGSDIALOG_H

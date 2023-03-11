@@ -56,7 +56,6 @@ void ParseReview(const QString &filename, const QString &review, QString &author
   QStringList lines = review.split('\n');
   if(lines.size() > 0)
   {
-    // std::cerr << "Title = '" << lines[0].toStdString() << "'\n";
     title = lines[0];
   }
 
@@ -164,5 +163,5 @@ void TrimReviewHeader(QString &review)
 // Parse authors from list
 QStringList ParseAuthors(const QString &authors_csv)
 {
-  return(authors_csv.split(",", QString::SkipEmptyParts));
+  return(authors_csv.split(",", Qt::SkipEmptyParts));
 }

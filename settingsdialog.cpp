@@ -37,13 +37,10 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 
   ui->addPaperDirButton->setIcon(add_icon);
   ui->removePaperDirButton->setIcon(del_icon);
-  ui->addReviewDirButton->setIcon(add_icon);
-  ui->removeReviewDirButton->setIcon(del_icon);
 
-  connect(ui->addPaperDirButton,     &QToolButton::clicked, this, &SettingsDialog::AddPapersPath);
-  connect(ui->removePaperDirButton,  &QToolButton::clicked, this, &SettingsDialog::RemoveSelectedPapersPath);
-  connect(ui->addReviewDirButton,    &QToolButton::clicked, this, &SettingsDialog::AddReviewsPath);
-  connect(ui->removeReviewDirButton, &QToolButton::clicked, this, &SettingsDialog::RemoveSelectedReviewsPath);
+  connect(ui->addPaperDirButton,         &QToolButton::released, this, &SettingsDialog::AddPapersPath);
+  connect(ui->removePaperDirButton,      &QToolButton::released, this, &SettingsDialog::RemoveSelectedPapersPath);
+  connect(ui->selectReadPaperPathButton, &QToolButton::released, this, &SettingsDialog::SelectReadPapersPath);
 }
 
 void SettingsDialog::SetPapersPaths(const QStringList &papers)
@@ -52,12 +49,9 @@ void SettingsDialog::SetPapersPaths(const QStringList &papers)
   ui->paperPathsList->addItems(papers);
 }
 
-void SettingsDialog::SetReviewsPaths(const QStringList &reviews)
+void SettingsDialog::SetReadPapersPath(const QString &read_papers)
 {
-  ui->reviewsPathsList->clear();
-  ui->reviewsPathsList->addItems(reviews);
-
-  ui->chosenReviewPathCombo->addItems(reviews);
+  ui->readPapersPathEdit->setText(read_papers);
 }
 
 QStringList SettingsDialog::GetPapersPaths() const
@@ -72,56 +66,9 @@ QStringList SettingsDialog::GetPapersPaths() const
   return(result);
 }
 
-QStringList SettingsDialog::GetReviewsPaths() const
+QString SettingsDialog::GetReadPapersPath() const
 {
-  QStringList result;
-
-  for(int r = 0; r < ui->reviewsPathsList->count(); r++)
-  {
-    result << ui->reviewsPathsList->item(r)->text();
-  }
-
-  return(result);
-}
-
-void SettingsDialog::SetChosenReviewPath(const QString &dest)
-{
-  // Find index that matches dest
-
-  int matched_index = -1;
-
-  for(int i = 0; i < ui->chosenReviewPathCombo->count(); i++)
-  {
-    if(ui->chosenReviewPathCombo->itemText(i) == dest)
-    {
-      matched_index = i;
-      break;
-    }
-  }
-
-  if(matched_index > -1)
-    ui->chosenReviewPathCombo->setCurrentIndex(matched_index);
-}
-
-QString SettingsDialog::GetChosenReviewPath() const
-{
-  return(ui->chosenReviewPathCombo->currentText());
-}
-
-void SettingsDialog::SetChosenReviewPathIndex(int index)
-{
-  ui->chosenReviewPathCombo->setCurrentIndex(index);
-}
-
-int SettingsDialog::GetChosenReviewPathIndex() const
-{
-  return(ui->chosenReviewPathCombo->currentIndex());
-}
-
-// Set preferred path for saving new reviews to
-void SettingsDialog::SetReviewPathIndex(int i)
-{
-  ui->chosenReviewPathCombo->setCurrentIndex(i);
+  return(ui->readPapersPathEdit->text());
 }
 
 void SettingsDialog::AddPapersPath()
@@ -132,15 +79,11 @@ void SettingsDialog::AddPapersPath()
   pathsChanged = true;
 }
 
-void SettingsDialog::AddReviewsPath()
+void SettingsDialog::SelectReadPapersPath()
 {
-  QString new_path = QFileDialog::getExistingDirectory(this, tr("Add review path"));
+  QString new_path = QFileDialog::getExistingDirectory(this, tr("Select read papers path"));
   if(new_path.isEmpty()) return;
-  ui->reviewsPathsList->addItem(new_path);
-
-  updateReviewPathChooser();
-
-  pathsChanged = true;
+  ui->readPapersPathEdit->setText(new_path);
 }
 
 void SettingsDialog::RemoveSelectedPapersPath()
@@ -153,40 +96,6 @@ void SettingsDialog::RemoveSelectedPapersPath()
     delete selected_list[r];
   }
   pathsChanged = true;
-}
-
-void SettingsDialog::RemoveSelectedReviewsPath()
-{
-  QList<QListWidgetItem *> selected_list = ui->reviewsPathsList->selectedItems();
-
-  for(int r = 0; r < selected_list.count(); r++)
-  {
-    ui->reviewsPathsList->takeItem(r);
-    delete selected_list[r];
-  }
-
-  updateReviewPathChooser();
-
-  pathsChanged = true;
-}
-
-// Scan reviewsPathsList and update chosenReviewPathCombo
-void SettingsDialog::updateReviewPathChooser()
-{
-  QString chosen_path = ui->chosenReviewPathCombo->currentText();
-  int chosen_index = -1;
-  ui->chosenReviewPathCombo->clear();
-
-  for(int r = 0; r < ui->reviewsPathsList->count(); r++)
-  {
-    ui->chosenReviewPathCombo->addItem(ui->reviewsPathsList->item(r)->text());
-    if(chosen_path == ui->reviewsPathsList->item(r)->text())
-    {
-      chosen_index = r;
-    }
-  }
-
-  if(chosen_index > -1) ui->chosenReviewPathCombo->setCurrentIndex(chosen_index);
 }
 
 void SettingsDialog::SetMaxCitationAuthors(int max)
@@ -209,6 +118,26 @@ int SettingsDialog::GetMaxCitationCharacters() const
   return(ui->maxCharactersSpin->value());
 }
 
+void SettingsDialog::SetDocViewerCLI(const QString &command)
+{
+  ui->wordViewerEdit->setText(command);
+}
+
+QString SettingsDialog::GetDocViewerCLI() const
+{
+  return(ui->wordViewerEdit->text());
+}
+
+void SettingsDialog::SetODTViewerCLI(const QString &command)
+{
+  ui->libreViewerEdit->setText(command);
+}
+
+QString SettingsDialog::GetODTViewerCLI() const
+{
+  return(ui->libreViewerEdit->text());
+}
+
 void SettingsDialog::SetPDFViewerCLI(const QString &command)
 {
   ui->pdfViewerEdit->setText(command);
@@ -227,16 +156,6 @@ void SettingsDialog::SetPSViewerCLI(const QString &command)
 QString SettingsDialog::GetPSViewerCLI() const
 {
   return(ui->psViewerEdit->text());
-}
-
-void SettingsDialog::SetDocViewerCLI(const QString &command)
-{
-  ui->wordViewerEdit->setText(command);
-}
-
-QString SettingsDialog::GetDocViewerCLI() const
-{
-  return(ui->wordViewerEdit->text());
 }
 
 void SettingsDialog::SetTextViewerCLI(const QString &command)

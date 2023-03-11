@@ -30,7 +30,7 @@ void ReviewScanner::process()
 {
   doRun = true;
 
-  QVector<PaperRecord> new_records;
+  QVector<PaperMeta> new_records;
   QStringList duplicate_reviews;
 
   // Scan reviews
@@ -38,7 +38,7 @@ void ReviewScanner::process()
   {
     QDir path(rpaths[p]);
 
-    QFlags<QDir::Filter>  myspec  = QDir::Files | QDir::NoDotAndDotDot;
+    QFlags<QDir::Filter>   myspec = QDir::Files | QDir::NoDotAndDotDot;
     QFlags<QDir::SortFlag> mysort = QDir::IgnoreCase | QDir::Name;
 
     QFileInfoList listing;
@@ -68,9 +68,9 @@ void ReviewScanner::process()
           continue;
         }
 
-        PaperRecord pr;
+        PaperMeta pr;
         pr.citation   = fname;
-        pr.reviewPath = rpaths[p] + QDir::separator() + fname;
+        // pr.reviewPath = rpaths[p] + QDir::separator() + fname;
         new_records.push_back(pr);
 
         ++fi;
@@ -92,7 +92,7 @@ void ReviewScanner::process()
   {
     QDir path(all_paper_dirs[a]);
 
-    QFlags<QDir::Filter>  myspec  = QDir::AllEntries | QDir::NoDotAndDotDot;
+    QFlags<QDir::Filter>   myspec = QDir::AllEntries | QDir::NoDotAndDotDot;
     QFlags<QDir::SortFlag> mysort = QDir::IgnoreCase | QDir::Name;
 
     QFileInfoList listing;
@@ -160,7 +160,7 @@ void ReviewScanner::process()
 
         if(!in_records)
         {
-          PaperRecord pr;
+          PaperMeta pr;
           pr.citation  = basename;
           pr.paperPath = all_paper_dirs[a] + QDir::separator() + fi->fileName();
           new_records.push_back(pr);

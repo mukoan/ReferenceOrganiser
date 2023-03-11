@@ -5,7 +5,8 @@
  * @date   2017.08.01
  */
 
-#include <iostream>
+#include <QFileDialog>
+#include <QRegularExpression>
 
 #include "searchdialog.h"
 #include "ui_searchdialog.h"
@@ -40,7 +41,7 @@ void Searcher::process()
   QStringList keywords_list;
 
   // convert commas to spaces
-  keywords = keywords.replace(QRegExp(","), " ");
+  keywords = keywords.replace(QRegularExpression(","), " ");
 
   int pos = 0;
   while(true)
@@ -58,139 +59,135 @@ void Searcher::process()
 
     QString quoted_string = keywords.mid(quote_start+1, quote_end-(quote_start+1));
 
-    // std::cerr << "Found quoted term '" << quoted_string.toStdString() << "'\n";
     keywords.remove(quote_start, quote_end-quote_start+1);
     keywords_list << quoted_string;
   }
 
-  QStringList keywords_split = keywords.split(' ', QString::SkipEmptyParts);
+  QStringList keywords_split = keywords.split(' ', Qt::SkipEmptyParts);
   keywords_list = keywords_list+keywords_split;
 
   // Basic: iterate through all records looking for matches
 
-  QVector<PaperRecord>::const_iterator it = records->begin();
+  QVector<PaperMeta>::const_iterator it = records->begin();
 
   while(it != records->end())
   {
-    // load review / parse year and authors
+    if(!doRun)
+      break;
 
-    QString     review_text;
-    if(LoadReview(it->reviewPath, review_text))
+    // Direct match on paper path is enough
+    if(!paperFile.isEmpty())
     {
-      int         year;
-      QString     year_string;
-      QString     authors;
-      QString     title;
-
-      bool is_match = true;
-
-      ParseReview(it->reviewPath, review_text, authors, title, year_string);
-
-      year = year_string.toInt();
-
-      if(yearStart != -1)
+      if(it->paperPath == paperFile)
       {
-        if((year < yearStart) || (year > yearStop))
-        {
-          is_match = false;
-          ++it;
-          continue;
-        }
+        emit result(it->citation, it->title);
       }
+      ++it;
+      continue;
+    }  
 
-      // Match if keyword is in title or review
+    // Check year
 
-      if(kwTitle || kwReview)
+    int year = it->year.toInt();
+
+    if(yearStart != -1)
+    {
+      if((year < yearStart) || (year > yearStop))
       {
-        bool keyword_match = false;
-
-        // Make reg exp for matching keywords with word boundaries either side
-
-        QString search_expression = "\\b(";
-        for(int k = 0; k < keywords_list.size(); k++)
-        {
-          search_expression.append(keywords_list[k]);
-          if(k+1 < keywords_list.size())
-            search_expression.append("|");
-          else
-            search_expression.append(")\\b");
-        }
-
-        QRegExp search_regexp(search_expression, Qt::CaseInsensitive);
-
-        for(int k = 0; k < keywords_list.size(); k++)
-        {
-          if(kwTitle)
-          {
-            if(title.contains(search_regexp))
-            {
-              keyword_match = true;
-            }
-          }
-
-          if(kwReview)
-          {
-            if(review_text.contains(search_regexp))
-            {
-              keyword_match = true;
-            }
-          }
-        }
-
-        if(!keyword_match)
-        {
-          ++it;
-          continue;
-        }
-      }
-
-      // Only need one author to be a match
-      if(!searchAuthors.isEmpty())
-      {
-        bool have_author = false;
-
-        // separate authors into QStringList of individual authors
-        QStringList author_list = searchAuthors.split(',', QString::SkipEmptyParts);
-
-        QString search_expression = "\\b(";
-        for(int k = 0; k < author_list.size(); k++)
-        {
-          search_expression.append(author_list[k].toLower());
-          if(k+1 < author_list.size())
-            search_expression.append("|");
-          else
-            search_expression.append(")\\b");
-        }
-
-        QRegExp search_regexp(search_expression, Qt::CaseInsensitive);
-
-        for(int a = 0; a < author_list.size(); a++)
-        {
-          if(authors.toLower().contains(search_regexp))
-          {
-            have_author = true;
-            break;
-          }
-        }
-
-        if(!have_author)
-        {
-          ++it;
-          continue;
-        }
-      }
-
-      if(is_match)
-      {
-        // Citation is matched, add to results list
-        emit result(it->citation);
+        ++it;
+        continue;
       }
     }
 
-    ++it;
+    // Match if keyword is in title or review
 
-    if(!doRun)
-      break;
+    if(kwTitle || kwReview)
+    {
+      bool keyword_match = false;
+
+      // Make reg exp for matching keywords with word boundaries either side
+
+      QString search_expression = "\\b(";
+      for(int k = 0; k < keywords_list.size(); k++)
+      {
+        search_expression.append(keywords_list[k]);
+        if(k+1 < keywords_list.size())
+          search_expression.append("|");
+        else
+          search_expression.append(")\\b");
+      }
+
+      QRegularExpression search_regexp(search_expression,
+                                       QRegularExpression::CaseInsensitiveOption);
+
+      for(int k = 0; k < keywords_list.size(); k++)
+      {
+        if(kwTitle)
+        {
+          if(it->title.contains(search_regexp))
+          {
+            keyword_match = true;
+          }
+        }
+
+        if(kwReview)
+        {
+          if(it->review.contains(search_regexp))
+          {
+            keyword_match = true;
+          }
+        }
+      }
+
+      if(!keyword_match)
+      {
+        ++it;
+        continue;
+      }
+    }
+
+    // Check match by author: only need one author to be a match
+
+    if(!searchAuthors.isEmpty())
+    {
+      bool have_author = false;
+
+      // separate authors into QStringList of individual authors
+      QStringList author_list = searchAuthors.split(',', Qt::SkipEmptyParts);
+
+      QString search_expression = "\\b(";
+      for(int k = 0; k < author_list.size(); k++)
+      {
+        search_expression.append(author_list[k].toLower());
+        if(k+1 < author_list.size())
+          search_expression.append("|");
+        else
+          search_expression.append(")\\b");
+      }
+
+      QRegularExpression search_regexp(search_expression,
+                                       QRegularExpression::CaseInsensitiveOption);
+
+      for(int a = 0; a < author_list.size(); a++)
+      {
+        if(it->authors.toLower().contains(search_regexp))
+        {
+          have_author = true;
+          break;
+        }
+      }
+
+      if(!have_author)
+      {
+        ++it;
+        continue;
+      }
+    }
+
+    // Must be a match if reach here
+    emit result(it->citation, it->title);
+
+    ++it;
   }
 
   emit finished();
@@ -211,13 +208,10 @@ SearchDialog::SearchDialog(QWidget *parent) :
 
   numberResults = 0;
 
-  connect(ui->authorsCheck,  &QAbstractButton::toggled, this, &SearchDialog::setAuthorsSearchEnabled);
-  connect(ui->yearCheck,     &QAbstractButton::toggled, this, &SearchDialog::setYearSearchEnabled);
-  connect(ui->keywordsCheck, &QAbstractButton::toggled, this, &SearchDialog::setKeywordsSearchEnabled);
-
-  connect(ui->searchButton,  &QPushButton::released,    this, &SearchDialog::search);
-  connect(ui->closeButton,   &QPushButton::released,    this, &QDialog::accept);
-  connect(ui->cancelButton,  &QPushButton::released,    this, &QDialog::reject);
+  connect(ui->paperSelectButton, &QToolButton::released,    this, &SearchDialog::selectPaperPath);
+  connect(ui->searchButton,      &QPushButton::released,    this, &SearchDialog::search);
+  connect(ui->closeButton,       &QPushButton::released,    this, &QDialog::accept);
+  connect(ui->cancelButton,      &QPushButton::released,    this, &QDialog::reject);
 }
 
 SearchDialog::~SearchDialog()
@@ -265,46 +259,42 @@ void SearchDialog::search()
   else
     searchObj->SetKeywords("", false, false);
 
+  if(ui->paperPathCheck->isChecked())
+  {
+    searchObj->SetPaperPath(ui->paperPathEdit->text());
+  }
+
   ui->searchButton->setText(tr("Halt"));
 
   searchObj->moveToThread(searchThread);
-  connect(searchThread,     SIGNAL(started()),             searchObj,    SLOT(process()));
-  connect(searchObj,        SIGNAL(result(const QString)), this,         SLOT(addResult(const QString)));
-  connect(ui->searchButton, SIGNAL(clicked()),             searchObj,    SLOT(halt()));
-  connect(searchObj,        SIGNAL(finished()),            this,         SLOT(endSearch()));
-  connect(searchObj,        SIGNAL(finished()),            searchObj,    SLOT(deleteLater()));
-  connect(searchThread,     SIGNAL(finished()),            searchThread, SLOT(deleteLater()));
+  connect(searchThread,     &QThread::started,      searchObj,    &Searcher::process);
+  connect(searchObj,        &Searcher::result,      this,         &SearchDialog::addResult);
+  connect(ui->searchButton, &QPushButton::released, searchObj,    &Searcher::halt);
+  connect(searchObj,        &Searcher::finished,    this,         &SearchDialog::endSearch);
+  connect(searchObj,        &Searcher::finished,    searchObj,    &Searcher::deleteLater);
+  connect(searchThread,     &QThread::finished,     searchThread, &QThread::deleteLater);
   searchThread->start();
 
   QCoreApplication::processEvents();
 }
 
-// Enable/disable author search UI element
-void SearchDialog::setAuthorsSearchEnabled(bool tf)
+// Open dialog to select a paper
+void SearchDialog::selectPaperPath()
 {
-  ui->authorsEdit->setEnabled(tf);
-}
+  QString paper_path = QFileDialog::getOpenFileName(this, tr("Select Paper"),
+                                                          papersReadDir,
+                                                          tr("Paper files (*.doc *.docx *.dvi *.odt *.ps *.ps.gz *.pdf *.txt)"));
+  if(paper_path.isEmpty()) return;
 
-// Enable/disable year range UI elements
-void SearchDialog::setYearSearchEnabled(bool tf)
-{
-  ui->yearStartSpin->setEnabled(tf);
-  ui->yearEndSpin->setEnabled(tf);
-}
-
-// Enable/disable keywords UI elements
-void SearchDialog::setKeywordsSearchEnabled(bool tf)
-{
-  ui->keywordsEdit->setEnabled(tf);
-  ui->keywordsTitleCheck->setEnabled(tf);
-  ui->keywordsReviewCheck->setEnabled(tf);
+  ui->paperPathEdit->setText(paper_path);
 }
 
 // Add a result from the search in progress
-void SearchDialog::addResult(const QString &cite)
+void SearchDialog::addResult(const QString &cite, const QString &title)
 {
   QListWidgetItem *element = new QListWidgetItem(ui->citationResultsList);
   element->setText(cite);
+  element->setToolTip(title);
   numberResults++;
 
   resultList << cite;

@@ -6,13 +6,14 @@
  */
 
 #include <QApplication>
+
 #include "organisermain.h"
 
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-  OrganiserMain w;
-  w.show();
+  OrganiserMain reforg;
+  reforg.show();
 
   return a.exec();
 }

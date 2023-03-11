@@ -11,7 +11,7 @@
 #include <QPixmapCache>
 
 // Constructor
-BusyIndicator::BusyIndicator(QWidget *parent) : QWidget(parent), startAngle(0)
+BusyIndicator::BusyIndicator(QWidget *parent) : QWidget(parent), startAngle(0), starts(0)
 {
   QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   policy.setHeightForWidth(true);
@@ -22,7 +22,7 @@ BusyIndicator::BusyIndicator(QWidget *parent) : QWidget(parent), startAngle(0)
 
   running = false;
   timer.setInterval(50);
-  connect(&timer, SIGNAL(timeout()), this, SLOT(rotate()));
+  connect(&timer, &QTimer::timeout, this, &BusyIndicator::rotate);
 }
 
 // Change angle and update
@@ -42,6 +42,9 @@ void BusyIndicator::SetColour(QColor colour)
 // Start the animation
 void BusyIndicator::start()
 {
+  starts++;
+  if(running) return;  // already running
+
   running = true;
   timer.start();
 }
@@ -49,6 +52,9 @@ void BusyIndicator::start()
 // Stop the animation and blank the widget
 void BusyIndicator::stop()
 {
+  starts--;
+  if(starts) return;   // another caller needs busy status
+
   timer.stop();
   running = false;
   update();

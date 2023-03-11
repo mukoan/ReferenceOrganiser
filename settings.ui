@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -23,11 +23,11 @@
       <attribute name="title">
        <string>Paths</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Papers Paths</string>
+          <string>New Papers Paths</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
@@ -76,61 +76,48 @@
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Reviews Paths</string>
+          <string>Read Papers</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QListWidget" name="reviewsPathsList"/>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QToolButton" name="addReviewDirButton">
-              <property name="styleSheet">
-               <string notr="true">border:0</string>
-              </property>
-              <property name="text">
-               <string>A</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="removeReviewDirButton">
-              <property name="styleSheet">
-               <string notr="true">border:0</string>
-              </property>
-              <property name="text">
-               <string>R</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Save New Reviews To:</string>
+             <string>Store Read Papers In:</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QComboBox" name="chosenReviewPathCombo"/>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="readPapersPathEdit"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="selectReadPaperPathButton">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>76</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -199,14 +186,14 @@
           <string>Paper Viewer</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>PostScript:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="psViewerEdit">
             <property name="minimumSize">
              <size>
@@ -216,21 +203,21 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>PDF:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_7">
             <property name="text">
              <string>Word:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="pdfViewerEdit">
             <property name="minimumSize">
              <size>
@@ -240,7 +227,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="wordViewerEdit">
             <property name="minimumSize">
              <size>
@@ -248,16 +235,19 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>MS Word DOC DOCX</string>
+            </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Fallback:</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1">
            <widget class="QLineEdit" name="fallbackViewerEdit">
             <property name="minimumSize">
              <size>
@@ -267,20 +257,43 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
              <string>Text:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QLineEdit" name="textViewerEdit">
             <property name="minimumSize">
              <size>
               <width>240</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Plain text editor</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>LibreOffice:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="libreViewerEdit">
+            <property name="minimumSize">
+             <size>
+              <width>240</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>LibreOffice Writer ODT</string>
             </property>
            </widget>
           </item>
@@ -304,7 +317,7 @@
      </widget>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -320,10 +333,6 @@
   <tabstop>paperPathsList</tabstop>
   <tabstop>addPaperDirButton</tabstop>
   <tabstop>removePaperDirButton</tabstop>
-  <tabstop>reviewsPathsList</tabstop>
-  <tabstop>addReviewDirButton</tabstop>
-  <tabstop>removeReviewDirButton</tabstop>
-  <tabstop>chosenReviewPathCombo</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>maxAuthorsSpin</tabstop>
   <tabstop>maxCharactersSpin</tabstop>
