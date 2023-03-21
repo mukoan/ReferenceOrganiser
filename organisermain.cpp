@@ -723,6 +723,8 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
   formatted_text.append("</p>");
   formatted_text.append("<hr>");
 
+  bool have_biblio = true;
+
   if(!meta_record.publication.isEmpty())
   {
     formatted_text.append(QString("Appeared in %1").arg(meta_record.publication));
@@ -733,42 +735,46 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
       formatted_text.append(QString(", pp%1-%2").arg(meta_record.pageStart, meta_record.pageEnd));
     else if(!meta_record.pageStart.isEmpty())
       formatted_text.append(QString(" at p%1").arg(meta_record.pageStart));
-
-    formatted_text.append("<br>");
   }
   else if(meta_record.thesis != ThesisType::UnknownThesisType)
   {
     switch(meta_record.thesis)
     {
       case ThesisType::Doctorate:
-      formatted_text.append(QString("Doctoral thesis."));
+      formatted_text.append(QString("Doctoral thesis"));
       break;
 
       case ThesisType::Masters:
-      formatted_text.append(QString("Masters thesis."));
+      formatted_text.append(QString("Masters thesis"));
       break;
 
       case ThesisType::Bachelors:
-      formatted_text.append(QString("Bachelors thesis."));
+      formatted_text.append(QString("Bachelors thesis"));
       break;
 
       case ThesisType::College:
-      formatted_text.append(QString("College thesis."));
+      formatted_text.append(QString("College thesis"));
       break;
 
       case ThesisType::UnknownThesisType:
       // Nothing to do here
       break;
     }
-
-    formatted_text.append("<br>");
   }
   else if(meta_record.venue == VenueType::Report)
   {
-    formatted_text.append(QString("Report.<br>"));
+    formatted_text.append(QString("Report"));
+  }
+  else
+    have_biblio = false;
+
+  if((!meta_record.year.isEmpty()) && (meta_record.year != "-1"))
+  {
+    if(have_biblio) formatted_text.append(", ");
+    // TODO Insert meta_record.month after getting name from number using QString QCalendar::monthName(const QLocale &locale, int month, int year = Unspecified, QLocale::FormatType format = QLocale::LongFormat) const
+    formatted_text.append(meta_record.year);
   }
 
-  formatted_text.append(meta_record.year);
   formatted_text.append("<br>");
 
   if(!meta_record.URL.isEmpty())
@@ -1202,6 +1208,7 @@ void OrganiserMain::newReview()
 {
   MetaDialog *edit_dialog = new MetaDialog(this);
   edit_dialog->setWindowTitle(tr("New Review"));
+  edit_dialog->SetTags(tags);
 
   if(!lastPaperPath.isEmpty()) edit_dialog->SetPaperHuntDir(lastPaperPath);
 
@@ -1550,13 +1557,25 @@ bool OrganiserMain::NewDatabase()
     if(!db.database.empty())
       saveDatabase();
 
-    QString new_name = dialog->GetDatabaseName();
-    QString new_file = dialog->GetDatabaseFilename();
-    lastDatabaseFilename = new_file;
-    db.New(new_name);
-    tags.clear();
-    searchResults.clear();
+    QString db_name = dialog->GetDatabaseName();
+    QString db_file = dialog->GetDatabaseFilename();
 
+    if(dialog->IsCreateMode())
+    {
+      db.New(db_name);
+      tags.clear();
+      searchResults.clear();
+    }
+    else
+    {
+      if(!db.Load(db_file.toUtf8().constData()))
+      {
+        QMessageBox::critical(this, tr("Could not load database"), tr("Operating without a database, set up a new one"));
+        return(false);
+      }
+    }
+
+    lastDatabaseFilename = db_file;
     UpdateView();
     return(true);
   }
