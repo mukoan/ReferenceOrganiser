@@ -66,12 +66,15 @@ void ParseReview(const QString &filename, const QString &review, QString &author
   {
     QString potential_authors(lines[1].simplified());
 
-    if((potential_authors[0] == '{') && (potential_authors[potential_authors.size()-1] == '}'))
+    if(potential_authors.size() > 2)
     {
-      // line is reference - this is from an deprecated version of the review formatting
+      if((potential_authors[0] == '{') && (potential_authors[potential_authors.size()-1] == '}'))
+      {
+        // line is reference - this is from an deprecated version of the review formatting
+      }
+      else
+        authors = potential_authors;
     }
-    else
-      authors = potential_authors;
   }
 }
 

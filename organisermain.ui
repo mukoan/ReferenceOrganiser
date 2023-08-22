@@ -57,7 +57,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Show:</string>
+           <string>List:</string>
           </property>
          </widget>
         </item>
@@ -380,7 +380,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPreferences">
