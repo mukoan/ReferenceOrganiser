@@ -59,6 +59,9 @@ public slots:
   /// Build simple list of papers with reviews  NOT USED
   void ScanRecords();
 
+  /// Add a paper and some details
+  void IngestPaper();
+
   /// Update view
   void UpdateView();
 
@@ -80,6 +83,9 @@ public slots:
 signals:
   /// New citation was made by generateKey()
   void haveNewCitation(const QString &key);
+
+  /// Output after checking a citation
+  void citationCheckResult(bool result);
 
 protected:
    void closeEvent(QCloseEvent *);
@@ -157,8 +163,14 @@ private slots:
   /// Delete a review
   void deleteReview();
 
+  /// Move the paper file from current location to papers read dir
+  bool movePaperToStorage(PaperMeta &meta);
+
   /// Generate a citation key, citation will be emitted
   void generateKey(const QString &authors, const QString &year);
+
+  /// Check whether the citation is in use, emits citationCheckResult
+  void checkCitationAvailable(const QString &citation);
 
   /// Save current database
   bool saveDatabase();

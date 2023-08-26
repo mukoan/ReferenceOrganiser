@@ -366,6 +366,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="addPaperButton">
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -380,7 +387,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPreferences">

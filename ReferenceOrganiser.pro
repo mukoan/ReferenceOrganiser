@@ -15,6 +15,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
+    addpaperdialog.cpp \
     createdatabasedialog.cpp \
     databasefilereader.cpp \
     databasefilewriter.cpp \
@@ -30,6 +31,7 @@ SOURCES += main.cpp \
 
 
 HEADERS  += organisermain.h \
+    addpaperdialog.h \
     createdatabasedialog.h \
     databasefilereader.h \
     databasefilewriter.h \
@@ -45,6 +47,7 @@ HEADERS  += organisermain.h \
     papermeta.h
 
 FORMS    += organisermain.ui \
+    addpaper.ui \
     createdatabasedialog.ui \
     databasenamedialog.ui \
     metadialog.ui \

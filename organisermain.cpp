@@ -10,6 +10,7 @@
 #include "createdatabasedialog.h"
 #include "settingsdialog.h"
 #include "databasenamedialog.h"
+#include "addpaperdialog.h"
 #include "metadialog.h"
 #include "searchdialog.h"
 #include "reviewparser.h"
@@ -78,6 +79,7 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
   connect(ui->newReviewButton,       &QPushButton::released,             this, &OrganiserMain::newReview);
   connect(ui->editButton,            &QPushButton::released,             this, &OrganiserMain::editReview);
   connect(ui->deleteButton,          &QPushButton::released,             this, &OrganiserMain::deleteReview); // Delete complete reference
+  connect(ui->addPaperButton,        &QPushButton::released,             this, &OrganiserMain::IngestPaper);
   connect(ui->searchButton,          &QPushButton::released,             this, &OrganiserMain::Search);
 
   connect(ui->refList,               &QListWidget::itemSelectionChanged, this, &OrganiserMain::selectItem);
@@ -123,6 +125,50 @@ void OrganiserMain::ScanRecords()
   connect(scanThread, SIGNAL(finished()), scanThread,                      SLOT(deleteLater()));
   scanThread->start();
 */
+}
+
+// Add a paper and some details
+void OrganiserMain::IngestPaper()
+{
+  // Open file dialog, user select a paper file
+
+  QString start_location = QDir::homePath();
+  if(!lastPaperPath.isEmpty()) start_location = lastPaperPath;
+
+  QString paper_file = QFileDialog::getOpenFileName(this, tr("Add Paper"), start_location,
+                                                          tr("Document (*.doc *.docx *.dvi *.odt *.pdf *.ps *.ps.gz *.txt)"));
+  if(paper_file.isEmpty()) return;
+
+
+  AddPaperDialog *add_dialog = new AddPaperDialog(this);
+  add_dialog->SetPaperPath(paper_file);
+
+  // Check citation key is good prior to saving
+  connect(add_dialog, &AddPaperDialog::recordToSave, this, &OrganiserMain::checkCitationAvailable);
+  connect(this, &OrganiserMain::citationCheckResult, add_dialog, &AddPaperDialog::SaveResult);
+
+  if(add_dialog->exec() == QDialog::Accepted)
+  {
+    // Get details from dialog
+
+    PaperMeta meta;
+    meta.citation = add_dialog->GetCitationKey();
+    meta.authors  = add_dialog->GetAuthors();
+    meta.title    = add_dialog->GetTitle();
+    meta.year     = add_dialog->GetYear();
+    meta.paperPath = paper_file;
+
+     // Move to new papers directory?, especially if have enough info for a citation rename
+    if(add_dialog->MoveToStorage()) {
+      movePaperToStorage(meta);
+    }
+
+    // Add to database
+
+    db.database.push_back(meta);
+    db.Sort();
+    UpdateView();
+  }
 }
 
 // Update view - use viewCombo and records to update view shown
@@ -1254,6 +1300,18 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
   {
     // Check path
     if(meta.paperPath.indexOf(readPapersPath) == 0)
+    {
+      std::cerr << "Paper has already been ingested\n";
+    }
+    else
+    {
+      movePaperToStorage(meta);
+    }
+
+ /*
+
+    // Check path
+    if(meta.paperPath.indexOf(readPapersPath) == 0)
       std::cerr << "Paper has already been ingested\n";
     else
     {
@@ -1279,6 +1337,8 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
           meta.paperPath = potential_file_name;
       }
     }
+*/
+
   }
 
   // Check if meta already in the database
@@ -1337,6 +1397,46 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
     {
       ui->refList->setCurrentItem(row_r);
       break;
+    }
+  }
+}
+
+// Move the paper to the read papers dir, as part of ingestion process
+bool OrganiserMain::movePaperToStorage(PaperMeta &meta)
+{
+  QString ext = meta.paperPath.section(".", -1);
+  QString potential_file_name = readPapersPath + "/" + meta.citation + "." + ext;
+  QFile potential_file(potential_file_name);
+
+  if(meta.paperPath == potential_file_name)
+  {
+    std::cerr << "Paper is already in storage directory\n";
+    return(false);
+  }
+
+  // Check if paper with proposed name already exists at readPapersPath
+  if(potential_file.exists())
+  {
+    QMessageBox::warning(this, tr("Citation already exists?"),
+                         tr("Could not move paper to read papers directory"));
+    return(false);
+  }
+  else
+  {
+    QFile current_paper(meta.paperPath);
+    bool ingest_result = current_paper.rename(potential_file_name);
+    if(!ingest_result)
+    {
+      // Paper was not moved, does it still exist, is it write protected?
+      QMessageBox::warning(this, tr("Failed to ingest paper"),
+                           tr("Could not move paper to read papers directory"));
+      return(false);
+    }
+    else
+    {
+      // Success, paper was moved
+      meta.paperPath = potential_file_name;
+      return(true);
     }
   }
 }
@@ -1764,6 +1864,13 @@ void OrganiserMain::generateKey(const QString &authors, const QString &year)
   }
 
   emit haveNewCitation(key);
+}
+
+// Check whether the citation is in use, emits citationCheckResult
+void OrganiserMain::checkCitationAvailable(const QString &citation)
+{
+  bool available = !checkCitationExists(citation);
+  emit citationCheckResult(available);
 }
 
 // Checks if citation is in use

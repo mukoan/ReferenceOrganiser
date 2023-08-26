@@ -320,7 +320,7 @@ void MetaDialog::locatePaperByName(const QString &filename)
   if(paper_file.isEmpty()) return;
 
   ui->paperPathEdit->setText(paper_file);
-  emit(paperLocated(paper_file));
+  emit paperLocated(paper_file);
 }
 
 // Add a tag from the tagCombo
