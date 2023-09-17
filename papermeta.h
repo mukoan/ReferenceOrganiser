@@ -50,9 +50,11 @@ enum Acceptance
 class ReaderMeta
 {
 public:
+  ReaderMeta() : finished(false),understanding(1),rating(1) {}
+
   bool        finished;
-  int         understanding;           ///< 0-10, understood = 10
-  int         rating;                  ///< 0-10, uninteresting = 0
+  int         understanding;           ///< 1-10, understood = 10
+  int         rating;                  ///< 1-10, uninteresting = 1
 };
 
 /// Reviewer's thoughts on the paper (peer review)
@@ -93,6 +95,7 @@ public:
     thesis = ThesisType::UnknownThesisType;
 
     year                 = "-1";
+    reviewed             = false;
     pseudo               = false;
     ingest               = false;
 
@@ -126,6 +129,7 @@ public:
   QString     note;        ///< Reference note
   QDate       reviewDate;  ///< Date review entered
   QString     tags;        ///< tags for user to taxonomise papers; comma separated
+  bool        reviewed;    ///< Paper has been reviewed for publication, see reviewer member
 
   bool        pseudo;      ///< This is a temporary meta for a paper without a review
   bool        ingest;      ///< The paper should be moved to the read papers directory (not saved in database)
@@ -146,8 +150,13 @@ public:
     thesis = ThesisType::UnknownThesisType; institution.clear(); location.clear();
     publisher.clear();   ISBN.clear();    doi.clear(); note.clear();
     reviewDate = QDate();                 tags.clear();
+    reviewed = false;
     pseudo = false;
     ingest = false;
+
+    reader.finished      = false;
+    reader.understanding = 1;
+    reader.rating        = 1;
 
     reviewer.accept = Accept_Neutral;
     reviewer.suitability = 1;

@@ -26,7 +26,7 @@ void AddPaperDialog::SetPaperPath(const QString &path)
   ui->paperPathEdit->setText(path);
 
   QString full_filename = path.section('/', -1);
-  QString filename = full_filename.section('.', 0, 0);
+  QString filename = full_filename.section('.', 0, -2); // Include filenames with period in them
   ui->citationEdit->setText(filename);
 }
 
@@ -53,6 +53,11 @@ QString AddPaperDialog::GetTitle() const
 QString AddPaperDialog::GetYear() const
 {
   return(ui->yearEdit->text());
+}
+
+QString AddPaperDialog::GetURL() const
+{
+  return(ui->urlEdit->text());
 }
 
 // Inform the dialog about the attempt to save

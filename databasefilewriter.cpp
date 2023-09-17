@@ -120,8 +120,11 @@ bool DatabaseFileWriter::Save(const QString &filename, const QString &name, cons
     if(!records[r].tags.isEmpty())
       stream.writeTextElement("tags", records[r].tags);
 
+    if(records[r].reviewed)
+      stream.writeEmptyElement("reviewed");
+
     // Reader opinion
-    if((records[r].reader.finished) || (records[r].reader.understanding > 1) || (records[r].reader.rating > 1))
+    if((!records[r].reader.finished) || (records[r].reader.understanding > 1) || (records[r].reader.rating > 1))
     {
       stream.writeStartElement("reader");
       if(records[r].reader.finished)

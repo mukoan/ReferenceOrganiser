@@ -37,6 +37,7 @@ public:
   QString GetAuthors() const;
   QString GetTitle() const;
   QString GetYear() const;
+  QString GetURL() const;
 
   /// The paper should be moved to the new papers directory on acceptance
   bool MoveToStorage() const;

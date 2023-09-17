@@ -97,6 +97,17 @@ void MetaDialog::SetMeta(const PaperMeta &paper_details)
   ui->commentsToAuthorsEdit->setPlainText(paper_details.reviewer.commentsToAuthors);
   ui->commentsToChairEdit->setPlainText(paper_details.reviewer.commentsToChairEditor);
   ui->correctionsRequiredCheck->setChecked(paper_details.reviewer.correctionsRequired);
+  ui->ratedCheck->setChecked(paper_details.reviewed);
+
+  ui->suitabilitySpin->setEnabled(paper_details.reviewed);
+  ui->correctnessSpin->setEnabled(paper_details.reviewed);
+  ui->noveltySpin->setEnabled(paper_details.reviewed);
+  ui->claritySpin->setEnabled(paper_details.reviewed);
+  ui->relevanceSpin->setEnabled(paper_details.reviewed);
+  ui->commentsToAuthorsEdit->setEnabled(paper_details.reviewed);
+  ui->commentsToChairEdit->setEnabled(paper_details.reviewed);
+  ui->correctionsRequiredCheck->setEnabled(paper_details.reviewed);
+  ui->acceptCombo->setEnabled(paper_details.reviewed);
 
   switch(paper_details.reviewer.accept)
   {
@@ -185,6 +196,8 @@ PaperMeta MetaDialog::GetMeta()
   my_paper.reader.finished      = ui->completeCheck->isChecked();
   my_paper.reader.understanding = ui->understandingSpin->value();
   my_paper.reader.rating        = ui->ratingSpin->value();
+
+  my_paper.reviewed             = ui->ratedCheck->isChecked();
 
   if(ui->acceptCombo->currentIndex() != 2 || ui->correctionsRequiredCheck->isChecked() ||
      (ui->suitabilitySpin->value() > 1) || (ui->correctnessSpin->value() > 1) || (ui->noveltySpin->value() != 1) ||

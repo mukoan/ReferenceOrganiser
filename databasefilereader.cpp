@@ -184,6 +184,8 @@ void DatabaseFileReader::readPaperMeta()
         record.reviewDate = QDate::fromString(reader.readElementText());
       else if(name == "tags")
         record.tags = reader.readElementText();
+      else if(name == "reviewed")
+        record.reviewed = true;
       else if(name == "reader")
         readReaderMeta();
       else if(name == "reviewer")

@@ -130,15 +130,34 @@ void OrganiserMain::ScanRecords()
 // Add a paper and some details
 void OrganiserMain::IngestPaper()
 {
-  // Open file dialog, user select a paper file
+  QString paper_file;
+  bool    ask_for_paper = true;
+  int     new_paper_index = -1;
 
-  QString start_location = QDir::homePath();
-  if(!lastPaperPath.isEmpty()) start_location = lastPaperPath;
+  if(ui->viewCombo->currentIndex() == 1)
+  {
+    // Add selected paper if viewing new papers
+    RecordListItem *current = dynamic_cast<RecordListItem *>(ui->refList->currentItem());
+    if(current)
+    {
+      new_paper_index = current->GetRecordIndex();
+      paper_file = newPapers[new_paper_index];
+      ask_for_paper = false;
+    }
+  }
 
-  QString paper_file = QFileDialog::getOpenFileName(this, tr("Add Paper"), start_location,
-                                                          tr("Document (*.doc *.docx *.dvi *.odt *.pdf *.ps *.ps.gz *.txt)"));
+  if(ask_for_paper)
+  {
+    // Open file dialog, user select a paper file
+
+    QString start_location = QDir::homePath();
+    if(!lastPaperPath.isEmpty()) start_location = lastPaperPath;
+
+    paper_file = QFileDialog::getOpenFileName(this, tr("Add Paper"), start_location,
+                                                    tr("Document (*.doc *.docx *.dvi *.odt *.pdf *.ps *.ps.gz *.txt)"));
+  }
+
   if(paper_file.isEmpty()) return;
-
 
   AddPaperDialog *add_dialog = new AddPaperDialog(this);
   add_dialog->SetPaperPath(paper_file);
@@ -156,11 +175,18 @@ void OrganiserMain::IngestPaper()
     meta.authors  = add_dialog->GetAuthors();
     meta.title    = add_dialog->GetTitle();
     meta.year     = add_dialog->GetYear();
+    meta.URL      = add_dialog->GetURL();
     meta.paperPath = paper_file;
 
      // Move to new papers directory?, especially if have enough info for a citation rename
     if(add_dialog->MoveToStorage()) {
       movePaperToStorage(meta);
+    }
+
+    // Update newPapers
+    if(new_paper_index >= 0)
+    {
+      newPapers.remove(new_paper_index);
     }
 
     // Add to database
@@ -200,6 +226,7 @@ void OrganiserMain::UpdateView()
   {
     if(ui->viewCombo->currentIndex() == 1)
     {
+      // New papers
       for(int r = 0; r < newPapers.size(); r++)
       {
         RecordListItem *element = new RecordListItem(ui->refList, r);
@@ -438,6 +465,8 @@ void OrganiserMain::showDetailsForReview(int index)
   {
     case 0:
     // Papers
+    case 2:
+    case 3:
     current_record = db.database[index];
     break;
 
@@ -451,6 +480,7 @@ void OrganiserMain::showDetailsForReview(int index)
     has_details = true;
     break;
 
+    /*
     case 2:
     // Reviewed papers TODO
     break;
@@ -458,6 +488,7 @@ void OrganiserMain::showDetailsForReview(int index)
     case 3:
     // Complete reviews TODO
     break;
+    */
 
     case 4:
     // Search results
@@ -856,7 +887,7 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
 
   formatted_text.append("</pre>");
 
-  // if(meta_record.reviewer.accept)  TODO detect review was set
+  if(meta_record.reviewed)
   {
     formatted_text.append("<hr>");
 
