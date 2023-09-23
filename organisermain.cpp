@@ -492,9 +492,9 @@ void OrganiserMain::showDetailsForReview(int index)
 
     case 4:
     // Search results
-std::cerr << "There are " << searchResults.size() << " results\n";
+    // std::cerr << "There are " << searchResults.size() << " results\n";
     if(index >= searchResults.size()) return;
-std::cerr << "Showing search result " << index << "\n";
+    // std::cerr << "Showing search result " << index << "\n";
     current_record = searchResults[index];
     break;
 
@@ -737,7 +737,7 @@ void OrganiserMain::ScanPaperPaths()
 
   for(int p = 0; p < papersPaths.size(); p++)
   {
-    std::cerr << "Search path " << papersPaths[p].toStdString() << "\n";
+    // std::cerr << "Search path " << papersPaths[p].toStdString() << "\n";
     QDir path(papersPaths[p]);
 
     QFileInfoList listing;
@@ -754,14 +754,14 @@ void OrganiserMain::ScanPaperPaths()
         QList<QFileInfo>::Iterator fi;
         fi = listing.begin();
 
-        std::cerr << "Search point " << fi->absoluteFilePath().toStdString() << "\n";
+        // std::cerr << "Search point " << fi->absoluteFilePath().toStdString() << "\n";
 
         while(fi != listing.end())
         {
           if(fi->isDir())
           {
             QString temp_path = fi->absoluteFilePath();
-            std::cerr << "Adding path " << temp_path.toStdString() << " to search list\n";
+            // std::cerr << "Adding path " << temp_path.toStdString() << " to search list\n";
             QDir temp_dir(temp_path);
             QFileInfoList temp_listing = temp_dir.entryInfoList(myspec, mysort);
             current_dir_listing.push_back(temp_listing);
@@ -855,7 +855,21 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
   formatted_text.append("<br>");
 
   if(!meta_record.URL.isEmpty())
-    formatted_text.append(QString("<a href=\"%1\">%1</a><br>").arg(meta_record.URL));
+  {
+    QStringList csv_urls = meta_record.URL.split(",");
+    if(csv_urls.size() > 1) {
+
+      for(int u = 0; u < csv_urls.size(); u++) {
+        QString short_url = shortenString(csv_urls[u]);
+        formatted_text.append(QString("<a href=\"%1\">%2</a><br>").arg(csv_urls[u], short_url));
+      }
+    }
+    else
+    {
+      QString short_url = shortenString(meta_record.URL);
+      formatted_text.append(QString("<a href=\"%1\">%2</a><br>").arg(meta_record.URL, short_url));
+    }
+  }
 
   if(!meta_record.doi.isEmpty())
     formatted_text.append(QString("<a href=\"https://doi.org/%1\">https://doi.org/%1</a><br>").arg(meta_record.doi));
@@ -1813,12 +1827,25 @@ void OrganiserMain::startup()
   buildTagList();
   ScanPaperPaths();
   UpdateView();
+
+  // Save database every 5 minutes
+
+  QTimer *timer = new QTimer(this);
+  connect(timer, &QTimer::timeout, this, &OrganiserMain::periodicSave);
+  timer->start(5*60*1000);
 }
 
 // Save current database
 bool OrganiserMain::saveDatabase()
 {
   return(db.Save(lastDatabaseFilename.toUtf8().constData()));
+}
+
+// Save database periodically
+void OrganiserMain::periodicSave()
+{
+  if(!saveDatabase())
+    qDebug() << "Failed to save database periodically";
 }
 
 // Generate a citation key for the given authors and year
@@ -1916,4 +1943,16 @@ bool OrganiserMain::checkCitationExists(const QString &text)
   }
 
   return(false);
+}
+
+// Utility function: abbreviates string
+QString OrganiserMain::shortenString(const QString &src, int max_length)
+{
+  if(src.length() <= max_length) return(src);
+
+  int first_pos = max_length/2;
+  QString first = src.left(first_pos);
+  QString second = src.right(max_length-first_pos-3);
+
+  return(first + "..." + second);
 }

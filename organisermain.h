@@ -172,8 +172,11 @@ private slots:
   /// Check whether the citation is in use, emits citationCheckResult
   void checkCitationAvailable(const QString &citation);
 
-  /// Save current database
+  /// Save current database - always tries to save
   bool saveDatabase();
+
+  /// Save database periodically
+  void periodicSave();
 
 private:
   /// Load saved settings
@@ -193,6 +196,9 @@ private:
 
   // Checks if citation is in use
   bool checkCitationExists(const QString &text);
+
+  /// Utility function: abbreviates string
+  static QString shortenString(const QString &src, int max_length = 50);
 
   Ui::OrganiserMain *ui;                 ///< User interface
 
