@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <QStringList>
+#include <QRegularExpression>
 
 #include "reviewparser.h"
 
@@ -109,7 +110,6 @@ bool ParseYearFromCitation(const QString &cite, QString &year)
 
   if(!number_start || ((year_start >= cite.size()) && (year_end >= cite.size())))
   {
-    year_num = -1;
     year.clear();
     return(false);
   }
@@ -166,5 +166,6 @@ void TrimReviewHeader(QString &review)
 // Parse authors from list
 QStringList ParseAuthors(const QString &authors_csv)
 {
-  return(authors_csv.split(",", Qt::SkipEmptyParts));
+//  return(authors_csv.split(",", Qt::SkipEmptyParts));
+  return(authors_csv.split(QRegularExpression("\\,\\s?"), Qt::SkipEmptyParts));
 }

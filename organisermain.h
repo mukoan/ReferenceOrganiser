@@ -191,6 +191,9 @@ private:
   /// Find paper for given index
   void findPaper(int index);
 
+  /// Get bibtext for record
+  QString getBibtex(const PaperMeta &meta_record) const;
+
   /// Clear review shown in GUI
   void clearDetails();
 

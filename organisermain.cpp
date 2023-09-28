@@ -951,6 +951,11 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
     formatted_text.append(QString("<p>Your verdict was <b>%1</b>%2.</p>").arg(accept_as_string, corrections));
   }
 
+  // Temporary: BibTex citation FIXME
+  formatted_text.append("<hr>");
+  QString bt = getBibtex(meta_record);
+  formatted_text.append(QString("<pre>%1</pre>").arg(bt));
+
   formatted_text.append("</body></html>");
 
   ui->detailsViewer->setHtml(formatted_text);
@@ -982,7 +987,7 @@ void OrganiserMain::findPaper(int index)
   else if(ui->viewCombo->currentIndex() == 1)
   {
     // New papers
-std::cerr << "Looking for file of new paper at " << newPapers[index].toStdString() << "\n";
+    // std::cerr << "Looking for file of new paper at " << newPapers[index].toStdString() << "\n";
     if((!newPapers[index].isEmpty()) && (QFile::exists(newPapers[index])))
       currentPaperPath = newPapers[index];
   }
@@ -1002,6 +1007,104 @@ std::cerr << "Looking for file of new paper at " << newPapers[index].toStdString
     ui->openPaperButton->setToolTip("");
     ui->paperPathLabel->setText(tr("No paper found"));
   }
+}
+
+// Get bibtext for record
+QString OrganiserMain::getBibtex(const PaperMeta &meta_record) const
+{
+  QString bibtex;
+
+  switch(meta_record.venue)
+  {
+    case VenueType::Journal:
+    bibtex.append("@article{");
+    break;
+
+    case VenueType::Book:
+    bibtex.append("@book{");
+    break;
+
+    case VenueType::Report:
+    bibtex.append("@techreport{");
+    break;
+
+    case VenueType::Preprint:
+    bibtex.append("@unpublished{");
+    break;
+
+    case VenueType::Thesis:
+    {
+      switch(meta_record.thesis)
+      {
+        case ThesisType::Doctorate:
+        bibtex.append("@phdthesis{");
+        break;
+
+        case ThesisType::Masters:
+        bibtex.append("@mastersthesis{");
+        break;
+
+        default:
+        bibtex.append("@misc{");
+        break;
+      }
+    }
+    break;
+
+    default:
+    bibtex.append("@inproceedings{");
+    break;
+  }
+
+  bibtex.append(QString("%1,\n").arg(meta_record.citation));
+
+  if(!meta_record.authors.isEmpty())
+  {
+    bibtex.append("  author=\"");
+
+    QStringList authors_list = ParseAuthors(meta_record.authors); // FIXME might include whitespace
+    for(int a = 0; a < authors_list.size(); a++)
+    {
+      bibtex.append(authors_list[a]);
+      if(a <= authors_list.size()-2)
+        bibtex.append(" and ");
+    }
+    bibtex.append("\",\n");
+  }
+
+  bibtex.append(QString("  title=\"%1\",\n").arg(meta_record.title));
+
+  if((meta_record.venue == VenueType::Journal) && (!meta_record.publication.isEmpty()))
+    bibtex.append(QString("  journal=\"%1\",\n").arg(meta_record.publication));
+
+  if((meta_record.venue == VenueType::Conference) && (!meta_record.publication.isEmpty()))
+    bibtex.append(QString("  booktitle=\"%1\",\n").arg(meta_record.publication));
+
+  if(((meta_record.venue == VenueType::Report) || (meta_record.venue == VenueType::Thesis)) && (!meta_record.institution.isEmpty()))
+    bibtex.append(QString("  institution=\"%1\",\n").arg(meta_record.institution));
+
+  if(!meta_record.publisher.isEmpty())
+    bibtex.append(QString("  publisher=\"%1\",\n").arg(meta_record.publisher));
+
+  if(meta_record.venue == VenueType::Journal)
+  {
+    if(!meta_record.volume.isEmpty())
+      bibtex.append(QString("  volume=\"%1\",\n").arg(meta_record.volume));
+
+    if(!meta_record.issue.isEmpty())
+      bibtex.append(QString("  number=\"%1\",\n").arg(meta_record.issue));
+  }
+
+  if(!meta_record.ISBN.isEmpty())
+    bibtex.append(QString("  isbn=\"%1\",\n").arg(meta_record.ISBN));
+
+  if((!meta_record.pageStart.isEmpty()) && (!meta_record.pageEnd.isEmpty()))
+    bibtex.append(QString("  pages=\"%1--%2\",\n").arg(meta_record.pageStart, meta_record.pageEnd));
+
+  bibtex.append(QString("  year=\"%1\",\n").arg(meta_record.year));
+  bibtex.append("}\n");
+
+  return(bibtex);
 }
 
 // Open the current paper

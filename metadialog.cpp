@@ -170,7 +170,7 @@ PaperMeta MetaDialog::GetMeta()
   my_paper.dates       = ui->datesEdit->text();
   my_paper.pageStart   = ui->pageStartEdit->text();
   my_paper.pageEnd     = ui->pageEndEdit->text();
-  my_paper.URL         = ui->urlEdit->text();
+  my_paper.URL         = ui->urlEdit->text().trimmed();
 
   switch(ui->thesisCombo->currentIndex())
   {
@@ -185,7 +185,7 @@ PaperMeta MetaDialog::GetMeta()
   my_paper.location         = ui->locationEdit->text();
   my_paper.publisher        = ui->publisherEdit->text();
   my_paper.ISBN             = ui->isbnEdit->text();
-  my_paper.doi              = ui->doiEdit->text();
+  my_paper.doi              = ui->doiEdit->text().trimmed();
 
   my_paper.reviewDate       = QDate::currentDate();
   my_paper.tags             = ui->tagsEdit->text().simplified();
