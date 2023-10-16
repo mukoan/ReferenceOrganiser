@@ -16,7 +16,7 @@
 class DatabaseHandler
 {
 public:
-  DatabaseHandler() : databaseName("Default database") { }
+  DatabaseHandler() : databaseName("Default database"), startYear(-1), endYear(-1) { }
 
   /**
    * Add a database file
@@ -36,6 +36,8 @@ public:
 
   QVector<PaperMeta> database;
   QString            databaseName;
+  int                startYear;
+  int                endYear;
 };
 
 #endif  // DATABASEHANDLER_H

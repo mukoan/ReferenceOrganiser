@@ -26,7 +26,39 @@ bool DatabaseHandler::Load(const char *filename)
     return(false);
   }
 
-  return(reader.Read(&input, databaseName, &database));
+  bool result = reader.Read(&input, databaseName, &database);
+  if(result)
+  {
+    // Scan databse for metadata
+    // Earliest and newest year of publication
+    int r = 0;
+    while(r < database.size())
+    {
+      QString year = database[r].year;
+      if(!year.isEmpty())
+      {
+        bool ok;
+        int yr;
+        yr = year.toInt(&ok, 10);
+        if(ok)
+        {
+          if(startYear == -1)
+          {
+            startYear = yr;
+            endYear = yr;
+          }
+          else
+          {
+            if(yr < startYear) startYear = yr;
+            if(yr > endYear) endYear = yr;
+          }
+        }
+      }
+      r++;
+    }
+  }
+
+  return(result);
 }
 
 // Write database to file

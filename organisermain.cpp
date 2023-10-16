@@ -371,6 +371,7 @@ void OrganiserMain::Search()
 {
   SearchDialog *search = new SearchDialog(this);
   search->SetRecords(db.database);
+  search->SetDatabaseYearRange(db.startYear, db.endYear);
   search->SetPapersRead(readPapersPath);
   int result = search->exec();
 

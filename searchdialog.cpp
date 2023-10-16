@@ -206,9 +206,12 @@ SearchDialog::SearchDialog(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  yearChange(0);
   numberResults = 0;
 
   connect(ui->paperSelectButton, &QToolButton::released,    this, &SearchDialog::selectPaperPath);
+  connect(ui->yearStartSpin,     &QSpinBox::valueChanged,   this, &SearchDialog::yearChange);
+  connect(ui->yearEndSpin,       &QSpinBox::valueChanged,   this, &SearchDialog::yearChange);
   connect(ui->searchButton,      &QPushButton::released,    this, &SearchDialog::search);
   connect(ui->closeButton,       &QPushButton::released,    this, &QDialog::accept);
   connect(ui->cancelButton,      &QPushButton::released,    this, &QDialog::reject);
@@ -219,10 +222,24 @@ SearchDialog::~SearchDialog()
   delete ui;
 }
 
+// Set the range of papers available in the database
+void SearchDialog::SetDatabaseYearRange(int first_year, int last_year)
+{
+  ui->yearStartSpin->setValue(first_year);
+  ui->yearEndSpin->setValue(last_year);
+}
+
 // Get results from search
 QStringList SearchDialog::GetResults()
 {
   return(resultList);
+}
+
+// There was a change to the year range: enforce validity
+void SearchDialog::yearChange(int)
+{
+  ui->yearStartSpin->setMaximum(ui->yearEndSpin->value());
+  ui->yearEndSpin->setMinimum(ui->yearStartSpin->value());
 }
 
 // Perform search

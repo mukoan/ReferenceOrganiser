@@ -105,10 +105,16 @@ public:
   /// Get results from search
   QStringList GetResults();
 
-  /// Where read papers get ingested to
+  /// Where read papers get ingested/stored to, for search by paper path
   void SetPapersRead(const QString &loc) { papersReadDir = loc; }
 
+  /// Set the range of papers available in the database
+  void SetDatabaseYearRange(int first_year, int last_year);
+
 private slots:
+  /// There was a change to the year range: enforce validity
+  void yearChange(int);
+
   /// Perform search
   void search();
 
