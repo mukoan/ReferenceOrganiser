@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QListWidgetItem>
 #include <QVector>
+#include <QRegularExpression>
 #include <QThread>
 
 #include "databasehandler.h"
@@ -244,6 +245,8 @@ private:
   QDate   lastEnteredReview;             ///< When last review was added
   QString lastPaperPath;                 ///< Path to last paper
   DatabaseHandler db;                    ///< Handles loading and saving of the current database
+
+  QRegularExpression matchBracesExpression; ///< Match braces for converting review link markdown
 };
 
 #endif  // ORGANISERMAIN_H

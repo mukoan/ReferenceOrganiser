@@ -83,8 +83,8 @@ void ReviewScanner::process()
 
   // Scan through all available papers, find in list so far or generate new record
 
-  QVector<QFileInfoList> part_listings;
-  QVector<QList<QFileInfo>::Iterator> part_iterators;
+  //QVector<QFileInfoList> part_listings;
+  //QVector<QList<QFileInfo>::Iterator> part_iterators;
 
   QStringList all_paper_dirs = ppaths;
 

@@ -95,6 +95,8 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
   ui->tagFilterCombo->setEnabled(false);
   tagFilterAnd = false;
 
+  matchBracesExpression.setPattern("\\{([^}]*)\\}");
+
   QTimer::singleShot(0, this, &OrganiserMain::startup);
 }
 
@@ -892,7 +894,7 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
   QString review_only(meta_record.review.toHtmlEscaped());
   if(!review_only.isEmpty())
   {
-    review_only.replace(QRegularExpression("\\{([^}]*)\\}"), "[<a href=\"\\1\">\\1</a>]");
+    review_only.replace(matchBracesExpression, "[<a href=\"\\1\">\\1</a>]");
     formatted_text.append(review_only);
   }
   else
@@ -1986,7 +1988,7 @@ void OrganiserMain::generateKey(const QString &authors, const QString &year)
 
     key = name_elements.last() + tr("EtAl") + year;
 
-    if(!checkCitationExists(key))
+    if(checkCitationExists(key))
     {
       // -> Try AlphaBravoCharlie2000 = ABC2000
       key.clear();

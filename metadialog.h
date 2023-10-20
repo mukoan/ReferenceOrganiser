@@ -55,7 +55,7 @@ signals:
   /// Request a citation for the given authors and year
   void requestCitation(const QString &authors, const QString &year);
 
-  /// User found a ppaper
+  /// User found a paper
   void paperLocated(const QString &paper_path);
 
 private slots:

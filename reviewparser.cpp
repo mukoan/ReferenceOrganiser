@@ -12,7 +12,6 @@
 
 #include "reviewparser.h"
 
-
 // Load a review
 bool LoadReview(const QString &filename, QString &review)
 {

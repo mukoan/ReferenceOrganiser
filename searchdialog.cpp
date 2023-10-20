@@ -170,7 +170,8 @@ void Searcher::process()
 
       for(int a = 0; a < author_list.size(); a++)
       {
-        if(it->authors.toLower().contains(search_regexp))
+        // if(it->authors.toLower().contains(search_regexp))
+        if(it->authors.contains(search_regexp))
         {
           have_author = true;
           break;
