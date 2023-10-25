@@ -232,6 +232,9 @@
             <property name="text">
              <string>New</string>
             </property>
+            <property name="shortcut">
+             <string>Ctrl+N</string>
+            </property>
            </widget>
           </item>
           <item>
@@ -347,6 +350,9 @@
             <property name="text">
              <string>Search</string>
             </property>
+            <property name="shortcut">
+             <string>Ctrl+F</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -371,6 +377,9 @@
             <property name="text">
              <string>Add</string>
             </property>
+            <property name="shortcut">
+             <string>Ctrl+A</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -387,7 +396,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPreferences">
@@ -449,7 +458,7 @@
     <string>Refresh</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -457,7 +466,7 @@
     <string>About</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+A</string>
+    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionFind_Records">
@@ -484,6 +493,9 @@
   <action name="actionStatus">
    <property name="text">
     <string>Status</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionManageDatabases">
