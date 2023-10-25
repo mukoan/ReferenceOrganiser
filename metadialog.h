@@ -77,6 +77,9 @@ private slots:
   /// Add a tag from the tagCombo
   void addTag();
 
+  /// Clear tag list
+  void clearTags();
+
 private:
   Ui::MetaDialog *ui;
 

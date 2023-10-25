@@ -25,6 +25,7 @@ MetaDialog::MetaDialog(QWidget *parent) :
   connect(ui->generateButton,    &QPushButton::released,      this, &MetaDialog::generateCite);
   connect(ui->paperSelectButton, &QPushButton::released,      this, &MetaDialog::locatePaper);
   connect(ui->tagAddButton,      &QToolButton::released,      this, &MetaDialog::addTag);
+  connect(ui->tagClearButton,    &QToolButton::released,      this, &MetaDialog::clearTags);
   connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::close);
   connect(ui->buttonBox,         &QDialogButtonBox::accepted, this, &MetaDialog::saveAndClose);
   connect(save_continue_button,  &QPushButton::released,      this, &MetaDialog::saveOnly);
@@ -360,4 +361,10 @@ void MetaDialog::addTag()
     if(!present)
       ui->tagsEdit->setText(ui->tagsEdit->text() + "," + current_tag);
   }
+}
+
+// Clear tag list
+void MetaDialog::clearTags()
+{
+  ui->tagsEdit->clear();
 }
