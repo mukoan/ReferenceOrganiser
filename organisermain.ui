@@ -168,6 +168,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Tag list</string>
+            </property>
            </widget>
           </item>
           <item>
@@ -427,8 +430,14 @@
     <addaction name="actionLoad_Previous_Database"/>
     <addaction name="actionSave_As"/>
    </widget>
+   <widget class="QMenu" name="menuHistory">
+    <property name="title">
+     <string>History</string>
+    </property>
+   </widget>
    <addaction name="menuPreferences"/>
    <addaction name="menuDatabase"/>
+   <addaction name="menuHistory"/>
    <addaction name="menuMisc"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

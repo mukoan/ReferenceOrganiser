@@ -21,6 +21,7 @@ SOURCES += main.cpp \
     databasefilewriter.cpp \
     databasehandler.cpp \
     databasenamedialog.cpp \
+    history.cpp \
     metadialog.cpp \
     organisermain.cpp \
     settingsdialog.cpp \
@@ -37,6 +38,7 @@ HEADERS  += organisermain.h \
     databasefilewriter.h \
     databasehandler.h \
     databasenamedialog.h \
+    history.h \
     metadialog.h \
     settingsdialog.h \
     searchdialog.h \

@@ -18,8 +18,12 @@
 #include "databasehandler.h"
 #include "papermeta.h"
 #include "reviewscanner.h"
+#include "history.h"
 
 #define VERSION "1.3"
+
+/// Maximum number of history items to show in the menu
+#define MAX_HISTORY_ENTRIES 15
 
 namespace Ui {
 class OrganiserMain;
@@ -134,6 +138,12 @@ private slots:
   /// Rescan and update view
   void refresh();
 
+  /// Rebuild history menu
+  void updateHistoryMenu();
+
+  /// Go to the record from the history
+  void goHistoricAction();
+
   /// Rescan/refresh DEPRECATED
   void rescanPaths();
 
@@ -222,6 +232,8 @@ private:
   QStringList tags;                      ///< Tags used in database
   QString currentPaperPath;              ///< Full path, including extension
   QString currentReviewText;             ///< Including headers
+
+  History userHistory;                   ///< What user has been doing
 
   // Citation generation //
 

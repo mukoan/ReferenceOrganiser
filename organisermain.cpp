@@ -195,6 +195,10 @@ void OrganiserMain::IngestPaper()
 
     db.database.push_back(meta);
     db.Sort();
+
+    userHistory.ReportAction(meta.citation, ROAction::Add);
+    updateHistoryMenu();
+
     UpdateView();
   }
 }
@@ -514,6 +518,20 @@ void OrganiserMain::showDetailsForReview(int index)
     currentReviewText = current_record.review;
     displayFormattedDetails(current_record);
 
+ /*
+    if(current_record.pseudo)
+      userHistory.ReportAction(current_record.paperPath, ROAction::View);
+    else
+      userHistory.ReportAction(current_record.citation, ROAction::View);
+*/
+
+    // Only add View action to history for real reviews
+    if(!current_record.pseudo)
+    {
+      userHistory.ReportAction(current_record.citation, ROAction::View);
+      updateHistoryMenu();
+    }
+
     // Look to see if paper is available
     findPaper(index);
   }
@@ -537,8 +555,12 @@ void OrganiserMain::showDatabaseDetails() const
     database_details.append(QString("%1 new papers.<br><br>").arg(newPapers.size()));
 
     database_details.append(QString("%1 tags").arg(tags.size()));
-    if(tags.empty()) database_details.append(".");
-    else             database_details.append(": ");
+
+    if(tags.empty())
+      database_details.append(".");
+    else
+      database_details.append(": ");
+
     for(int t = 0; t < tags.size(); t++) database_details.append(QString(" %1").arg(tags[t]));
 
     database_details.append("</body></html>");
@@ -658,6 +680,24 @@ void OrganiserMain::loadSettings()
   prefBackupViewer = settings.value("backup", "xdg-open").toString();
 #endif
   settings.endGroup();
+
+  int hist_size = settings.beginReadArray("history");
+  for(int i = hist_size-1; i >= 0; i--)
+  {
+    HistoryItem hitem;
+    settings.setArrayIndex(i);
+    hitem.text         = settings.value("description", "invalid").toString();
+    QString action_str = settings.value("action", "none").toString();
+
+    if(action_str == "add")    hitem.action = ROAction::Add;
+    if(action_str == "create") hitem.action = ROAction::Create;
+    if(action_str == "edit")   hitem.action = ROAction::Edit;
+    if(action_str == "view")   hitem.action = ROAction::View;
+    if(action_str == "none")   hitem.action = ROAction::None;
+
+    userHistory.ReportAction(hitem);
+  }
+  settings.endArray();
 }
 
 void OrganiserMain::saveSettings()
@@ -692,6 +732,21 @@ void OrganiserMain::saveSettings()
   settings.setValue("text",   prefTextViewer);
   settings.setValue("backup", prefBackupViewer);
   settings.endGroup();
+
+  settings.beginWriteArray("history");
+  for(unsigned int i = 0; i < userHistory.Count(); i++)
+  {
+    settings.setArrayIndex(i);
+    settings.setValue("description", userHistory[i].text);
+    switch(userHistory[i].action) {
+      case ROAction::Add: settings.setValue("action", "add"); break;
+      case ROAction::Create: settings.setValue("action", "create"); break;
+      case ROAction::Edit: settings.setValue("action", "edit"); break;
+      case ROAction::View: settings.setValue("action", "view"); break;
+      case ROAction::None: settings.setValue("action", "none"); break;
+    }
+  }
+  settings.endArray();
 }
 
 
@@ -1275,6 +1330,40 @@ void OrganiserMain::refresh()
   UpdateView();
 }
 
+// Rebuild history menu
+void OrganiserMain::updateHistoryMenu()
+{
+  ui->menuHistory->clear();
+
+  unsigned max_menu_size = MAX_HISTORY_ENTRIES;
+  if(userHistory.Count() < max_menu_size) max_menu_size = userHistory.Count();
+
+  for(unsigned int h = 0; h < max_menu_size; h++)
+  {
+    QAction *act = new QAction(userHistory[h].text, this);
+    ui->menuHistory->addAction(act);
+    connect(act, &QAction::triggered, this, &OrganiserMain::goHistoricAction);
+  }
+}
+
+// Go to the given historic record
+void OrganiserMain::goHistoricAction()
+{
+  // Find which menu action triggered this slot, then use it to determine the history
+  // action that it refers to
+
+  QList<QAction *> history_actions = ui->menuHistory->actions();
+
+  for(int a = 0; a < history_actions.count(); a++)
+  {
+    if(history_actions[a] == sender()) {
+      if(userHistory[a].action != ROAction::None)
+        selectCitation(userHistory[a].text); // Assumes history contains a citation
+      return;
+    }
+  }
+}
+
 // Rescan/refresh
 void OrganiserMain::rescanPaths()
 {
@@ -1538,6 +1627,15 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
       }
     }
   }
+
+  HistoryItem hi;
+  hi.text   = meta.citation;
+  if(!in_database)
+    hi.action = ROAction::Create;
+  else
+    hi.action = ROAction::Edit;
+  userHistory.ReportAction(hi);
+  updateHistoryMenu();
 
   UpdateView();
 
@@ -1933,6 +2031,8 @@ void OrganiserMain::startup()
   buildTagList();
   ScanPaperPaths();
   UpdateView();
+
+  if(userHistory.Count()) updateHistoryMenu();
 
   // Save database every 5 minutes
 
