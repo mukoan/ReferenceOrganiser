@@ -71,6 +71,9 @@ private slots:
   /// Request meta to be saved
   void saveOnly();
 
+  /// User hit cancel or keyboard shortcut, like escape
+  void requestToCancel();
+
   /// User to find the paper PDF or other file type
   void locatePaper();
 
@@ -80,6 +83,9 @@ private slots:
   /// Clear tag list
   void clearTags();
 
+protected:
+  void keyPressEvent(QKeyEvent *e);
+
 private:
   Ui::MetaDialog *ui;
 
@@ -88,6 +94,9 @@ private:
 
   /// User to find the paper PDF or other file type, with citation to try as stem of filename
   void locatePaperByName(const QString &cite);
+
+  /// Original copy of the metadata
+  PaperMeta originalCopy;
 };
 
 #endif  // METADIALOG_H

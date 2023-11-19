@@ -7,9 +7,12 @@
 
 #include <QDialogButtonBox>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #include "metadialog.h"
 #include "ui_metadialog.h"
+
+#include <iostream>
 
 MetaDialog::MetaDialog(QWidget *parent) :
     QDialog(parent),
@@ -26,7 +29,7 @@ MetaDialog::MetaDialog(QWidget *parent) :
   connect(ui->paperSelectButton, &QPushButton::released,      this, &MetaDialog::locatePaper);
   connect(ui->tagAddButton,      &QToolButton::released,      this, &MetaDialog::addTag);
   connect(ui->tagClearButton,    &QToolButton::released,      this, &MetaDialog::clearTags);
-  connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::close);
+  connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::requestToCancel);
   connect(ui->buttonBox,         &QDialogButtonBox::accepted, this, &MetaDialog::saveAndClose);
   connect(save_continue_button,  &QPushButton::released,      this, &MetaDialog::saveOnly);
 }
@@ -135,6 +138,8 @@ void MetaDialog::SetMeta(const PaperMeta &paper_details)
   }
 
   originalCitation = paper_details.citation;
+
+  originalCopy = paper_details;
 }
 
 // Get the meta data
@@ -293,7 +298,29 @@ void MetaDialog::saveAndClose()
 void MetaDialog::saveOnly()
 {
   PaperMeta meta = GetMeta();
+  originalCopy = meta;
   emit updatedDetails(meta);
+}
+
+// User hit cancel or keyboard shortcut, like escape
+void MetaDialog::requestToCancel()
+{
+  PaperMeta meta = GetMeta();
+  if(!meta.review.isEmpty() || !meta.authors.isEmpty() || !meta.title.isEmpty()) // May have to expand tests here
+  {
+    // Check with user
+    int ret = QMessageBox::question(this, tr("Abandon Review"),
+                                    tr("Are you sure you want to abandon the review?"),
+                                    QMessageBox::Ok | QMessageBox::Cancel);
+
+    if(ret == QMessageBox::Ok)
+    {
+      reject();
+      return;
+    }
+  }
+  else
+    reject();
 }
 
 // User to find the paper PDF or other file type
@@ -367,4 +394,15 @@ void MetaDialog::addTag()
 void MetaDialog::clearTags()
 {
   ui->tagsEdit->clear();
+}
+
+void MetaDialog::keyPressEvent(QKeyEvent *e)
+{
+  if(e->key() == Qt::Key_Escape)
+  {
+    requestToCancel();
+    e->accept();
+  }
+  else
+    QDialog::keyPressEvent(e);
 }
