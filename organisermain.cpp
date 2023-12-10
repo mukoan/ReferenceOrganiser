@@ -1174,7 +1174,7 @@ void OrganiserMain::openCurrentPaper()
     QString viewer;
     QStringList arguments;
 
-    QString viewer_string = prefBackupViewer;
+    QString viewer_string;
 
     if((extension == "doc") || (extension == "docx"))
     {
@@ -2094,8 +2094,8 @@ void OrganiserMain::generateKey(const QString &authors, const QString &year)
       key.clear();
       for(int a = 0; a < names.size(); a++)
       {
-        QStringList name_elements = names[a].split(' ', Qt::SkipEmptyParts); // assume family name last
-        key.append(name_elements.last()[0]);
+        QStringList each_name_elements = names[a].split(' ', Qt::SkipEmptyParts); // assume family name last
+        key.append(each_name_elements.last()[0]);
       }
       key = key + year;
     }

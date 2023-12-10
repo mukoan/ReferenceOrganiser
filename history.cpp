@@ -37,7 +37,7 @@ void History::ReportAction(const HistoryItem &hitem)
       in_list = true;
       break;
     }
-    i++;
+    ++i;
   }
 
   if(!in_list)

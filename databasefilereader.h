@@ -55,6 +55,7 @@ private:
   /// Copy of the pointer to the database being read
   QVector<PaperMeta> *targetDatabase;
 
+  /// The low level reader
   QXmlStreamReader reader;
 };
 

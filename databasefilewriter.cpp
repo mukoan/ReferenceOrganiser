@@ -11,9 +11,8 @@
 #include "databasefilewriter.h"
 
 // Constructor
-DatabaseFileWriter::DatabaseFileWriter()
+DatabaseFileWriter::DatabaseFileWriter() : version(DATABASE_VERSION)
 {
-  version = DATABASE_VERSION;
 }
 
 // Save a paper database

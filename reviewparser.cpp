@@ -81,9 +81,7 @@ void ParseReview(const QString &filename, const QString &review, QString &author
 // Find the year appended at the end of the string
 bool ParseYearFromCitation(const QString &cite, QString &year)
 {
-  int year_num;
-
-  // Get year from filename; find digits from end of string
+  // Get year from citation: find digits from end of string
 
   int  year_end     = 0;
   int  year_start   = 0;
@@ -122,7 +120,7 @@ bool ParseYearFromCitation(const QString &cite, QString &year)
     // Get year portion of string
 
     QString year_string = cite.mid(year_start, year_end-year_start+1);
-    year_num = year_string.toInt();
+    int year_num = year_string.toInt();
 
     // Handle 2 digit years
 

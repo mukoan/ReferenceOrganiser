@@ -13,7 +13,7 @@
 
 #include <QDebug>
 
-DatabaseFileReader::DatabaseFileReader()
+DatabaseFileReader::DatabaseFileReader() : databaseStarted(false),databaseFileVersion(-1)
 {
   targetDatabase = nullptr;
 }

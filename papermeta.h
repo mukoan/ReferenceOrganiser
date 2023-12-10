@@ -89,12 +89,11 @@ class PaperMeta
 {
 public:
   /// Constructor
-  PaperMeta()
+  PaperMeta() : year("-1")
   {
     venue  = VenueType::UnknownVenue;
     thesis = ThesisType::UnknownThesisType;
 
-    year                 = "-1";
     reviewed             = false;
     pseudo               = false;
     ingest               = false;
