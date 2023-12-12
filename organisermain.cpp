@@ -6,19 +6,12 @@
  */
 
 #include "organisermain.h"
-#include "ui_organisermain.h"
-#include "createdatabasedialog.h"
-#include "settingsdialog.h"
-#include "databasenamedialog.h"
-#include "addpaperdialog.h"
-#include "metadialog.h"
-#include "searchdialog.h"
-#include "reviewparser.h"
-#include "recordlistitem.h"
+
+#include <stdio.h>
+#include <sys/file.h>
 
 #include <iostream>
 #include <fstream>
-#include <stdio.h>
 
 #include <QSettings>
 #include <QDir>
@@ -35,6 +28,16 @@
 #include <QDate>
 #include <QMessageBox>
 #include <QDebug>
+
+#include "ui_organisermain.h"
+#include "createdatabasedialog.h"
+#include "settingsdialog.h"
+#include "databasenamedialog.h"
+#include "addpaperdialog.h"
+#include "metadialog.h"
+#include "searchdialog.h"
+#include "reviewparser.h"
+#include "recordlistitem.h"
 
 OrganiserMain::OrganiserMain(QWidget *parent) :
     QMainWindow(parent),
