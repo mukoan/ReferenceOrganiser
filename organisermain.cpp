@@ -1160,6 +1160,10 @@ QString OrganiserMain::getBibtex(const PaperMeta &meta_record) const
     bibtex.append(QString("  pages=\"%1--%2\",\n").arg(meta_record.pageStart, meta_record.pageEnd));
 
   bibtex.append(QString("  year=\"%1\",\n").arg(meta_record.year));
+
+  if(!meta_record.doi.isEmpty())
+    bibtex.append(QString("  doi=\"%1\",\n").arg(meta_record.doi));
+
   bibtex.append("}\n");
 
   return(bibtex);
