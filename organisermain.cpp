@@ -8,7 +8,6 @@
 #include "organisermain.h"
 
 #include <stdio.h>
-#include <sys/file.h>
 
 #include <iostream>
 #include <fstream>

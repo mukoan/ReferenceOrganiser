@@ -208,7 +208,7 @@ private:
   /// Clear review shown in GUI
   void clearDetails();
 
-  // Checks if citation is in use
+  /// Checks if citation is in use
   bool checkCitationExists(const QString &text);
 
   /// Utility function: abbreviates string
