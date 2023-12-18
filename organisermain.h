@@ -258,7 +258,8 @@ private:
   QString lastPaperPath;                 ///< Path to last paper
   DatabaseHandler db;                    ///< Handles loading and saving of the current database
 
-  QRegularExpression matchBracesExpression; ///< Match braces for converting review link markdown
+  QRegularExpression matchBracesExpression;  ///< Match braces for converting review link markdown
+  QRegularExpression hyperlinkRegExpression; ///< Match hyperlink
 };
 
 #endif  // ORGANISERMAIN_H

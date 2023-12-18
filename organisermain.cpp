@@ -97,6 +97,7 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
   ui->tagFilterCombo->setEnabled(false);
   tagFilterAnd = false;
 
+  hyperlinkRegExpression.setPattern("(https?:\\/\\/[^\\s]+)");
   matchBracesExpression.setPattern("\\{([^}]*)\\}");
 
   QTimer::singleShot(0, this, &OrganiserMain::startup);
@@ -622,8 +623,6 @@ void OrganiserMain::gotoLinkedReview(const QUrl &link)
   }
   else
   {
-    // TODO if it is a link don't clear the widget
-    // TODO consider ui->detailsViewer->setOpenExternalLinks(true) instead of this
     if(link.toString().startsWith("http"))
       QProcess::startDetached("xdg-open", QStringList(link.toString()));
     else
@@ -949,9 +948,15 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
   formatted_text.append("<pre>");
 
   QString review_only(meta_record.review.toHtmlEscaped());
+
   if(!review_only.isEmpty())
   {
+    // Turn links into proper hyperlinks
+    review_only.replace(hyperlinkRegExpression, "<a href=\"\\1\">\\1</a>");
+
+    // Convert match braces mark up to hyperlinks
     review_only.replace(matchBracesExpression, "[<a href=\"\\1\">\\1</a>]");
+
     formatted_text.append(review_only);
   }
   else
