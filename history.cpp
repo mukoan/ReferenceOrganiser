@@ -7,6 +7,8 @@
 
 #include "history.h"
 
+#include <QObject>
+
 // Constructor
 History::History(int max_size)
 {
@@ -67,7 +69,7 @@ HistoryItem History::LastAction()
   else
   {
     HistoryItem it;
-    it.text   = "";
+    it.text   = QObject::tr("(empty)");
     it.action = ROAction::None;
     return(it);
   }
@@ -85,7 +87,7 @@ HistoryItem History::operator[](int i)
   if(i >= items.count())
   {
     HistoryItem it;
-    it.text   = "";
+    it.text   = QObject::tr("(empty)");
     it.action = ROAction::None;
     return(it);
   }

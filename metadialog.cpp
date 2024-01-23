@@ -22,16 +22,21 @@ MetaDialog::MetaDialog(QWidget *parent) :
 
   paperHuntDir = QDir::homePath();
 
-  QPushButton *save_continue_button = ui->buttonBox->addButton(tr("Save and Continue"), QDialogButtonBox::ApplyRole);
+  saveContinueButton = ui->buttonBox->addButton(tr("Save and Continue"), QDialogButtonBox::ApplyRole);
+  saveContinueButton->setEnabled(false);
+
+  QPushButton *save_button = ui->buttonBox->button(QDialogButtonBox::Save);
+  if(save_button) save_button->setEnabled(false);
 
   connect(ui->venueCombo,        QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MetaDialog::setVenueType);
   connect(ui->generateButton,    &QPushButton::released,      this, &MetaDialog::generateCite);
+  connect(ui->citationEdit,      &QLineEdit::textChanged,     this, &MetaDialog::citationUpdated);
   connect(ui->paperSelectButton, &QPushButton::released,      this, &MetaDialog::locatePaper);
   connect(ui->tagAddButton,      &QToolButton::released,      this, &MetaDialog::addTag);
   connect(ui->tagClearButton,    &QToolButton::released,      this, &MetaDialog::clearTags);
   connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::requestToCancel);
   connect(ui->buttonBox,         &QDialogButtonBox::accepted, this, &MetaDialog::saveAndClose);
-  connect(save_continue_button,  &QPushButton::released,      this, &MetaDialog::saveOnly);
+  connect(saveContinueButton,    &QPushButton::released,      this, &MetaDialog::saveOnly);
 }
 
 MetaDialog::~MetaDialog()
@@ -290,6 +295,13 @@ void MetaDialog::generateCite()
 void MetaDialog::saveAndClose()
 {
   PaperMeta meta = GetMeta();
+  if(meta.citation.isEmpty()) // TODO or whitespace
+  {
+    QMessageBox::warning(this, tr("No Citation Set"),
+                         tr("Please set a citation before saving"),
+                         QMessageBox::Ok);
+    return;
+  }
   emit updatedDetails(meta);
   accept();
 }
@@ -394,6 +406,16 @@ void MetaDialog::addTag()
 void MetaDialog::clearTags()
 {
   ui->tagsEdit->clear();
+}
+
+// React to change in citation
+void MetaDialog::citationUpdated(const QString &)
+{
+  bool lacks_citation = ui->citationEdit->text().isEmpty();
+
+  QPushButton *save_button = ui->buttonBox->button(QDialogButtonBox::Save);
+  if(save_button) save_button->setEnabled(!lacks_citation);
+  saveContinueButton->setEnabled(!lacks_citation);
 }
 
 void MetaDialog::keyPressEvent(QKeyEvent *e)

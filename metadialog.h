@@ -10,6 +10,7 @@
 #define METADIALOG_H
 
 #include <QDialog>
+#include <QPushButton>
 
 #include "papermeta.h"
 
@@ -83,11 +84,15 @@ private slots:
   /// Clear tag list
   void clearTags();
 
+  /// Citation was edited, enable/disable save button(s)
+  void citationUpdated(const QString &);
+
 protected:
   void keyPressEvent(QKeyEvent *e);
 
 private:
   Ui::MetaDialog *ui;
+  QPushButton *saveContinueButton;
 
   QString originalCitation; ///< Paper citation before editing
   QString paperHuntDir;
