@@ -1924,6 +1924,8 @@ bool OrganiserMain::NewDatabase()
     {
       db.New(db_name);
       tags.clear();
+      clearTagFilters();
+      ui->tagFilterCombo->clear();
       searchResults.clear();
     }
     else
@@ -1966,7 +1968,9 @@ void OrganiserMain::LoadPreviousDatabase()
   ui->paperPathLabel->clear();
   db.database.clear();
   db.databaseName.clear();
+
   tags.clear();
+  clearTagFilters();
 
   QString documents_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
   if(documents_path.isEmpty()) documents_path = QDir::homePath();
