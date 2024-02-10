@@ -174,6 +174,9 @@ private slots:
   /// Delete a review
   void deleteReview();
 
+  /// Enable tag filtering
+  void setTagFilteringEnabled(bool enable);
+
   /// Move the paper file from current location to papers read dir
   bool movePaperToStorage(PaperMeta &meta);
 

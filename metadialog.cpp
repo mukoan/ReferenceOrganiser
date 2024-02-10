@@ -15,14 +15,14 @@
 #include <iostream>
 
 MetaDialog::MetaDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::MetaDialog)
+    QDialog(parent), ui(new Ui::MetaDialog), isEdit(false)
 {
   ui->setupUi(this);
 
   paperHuntDir = QDir::homePath();
 
   saveContinueButton = ui->buttonBox->addButton(tr("Save and Continue"), QDialogButtonBox::ApplyRole);
+  saveContinueButton->setToolTip(tr("Save review but do not close"));
   saveContinueButton->setEnabled(false);
 
   QPushButton *save_button = ui->buttonBox->button(QDialogButtonBox::Save);
@@ -143,8 +143,8 @@ void MetaDialog::SetMeta(const PaperMeta &paper_details)
   }
 
   originalCitation = paper_details.citation;
-
   originalCopy = paper_details;
+  isEdit = true;
 }
 
 // Get the meta data
@@ -317,12 +317,36 @@ void MetaDialog::saveOnly()
 // User hit cancel or keyboard shortcut, like escape
 void MetaDialog::requestToCancel()
 {
+  bool will_abandon_edits = false;
+
   PaperMeta meta = GetMeta();
-  if(!meta.review.isEmpty() || !meta.authors.isEmpty() || !meta.title.isEmpty()) // May have to expand tests here
+
+  if(isEdit)
+  {
+    if(meta != originalCopy)
+      will_abandon_edits = true;
+  }
+  else
+  {
+    if(!meta.review.isEmpty() || !meta.authors.isEmpty() || !meta.title.isEmpty()) // May have to expand tests here
+      will_abandon_edits = true;
+  }
+
+  if(will_abandon_edits)
   {
     // Check with user
-    int ret = QMessageBox::question(this, tr("Abandon Review"),
-                                    tr("Are you sure you want to abandon the review?"),
+
+    QString close_title(tr("Abandon Review"));
+    QString close_message(tr("Are you sure you want to abandon the review?"));
+
+    if(isEdit)
+    {
+      close_title = tr("Discard Changes");
+      close_message = tr("Are you sure you want to discard your edits?");
+    }
+
+    int ret = QMessageBox::question(this, close_title,
+                                    close_message,
                                     QMessageBox::Ok | QMessageBox::Cancel);
 
     if(ret == QMessageBox::Ok)

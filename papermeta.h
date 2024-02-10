@@ -55,6 +55,16 @@ public:
   bool        finished;
   int         understanding;           ///< 1-10, understood = 10
   int         rating;                  ///< 1-10, uninteresting = 1
+
+  /// Equality function
+  bool operator==(const ReaderMeta &rhs) const
+  {
+    if( (finished == rhs.finished) && (understanding == rhs.understanding) &&
+        (rating == rhs.rating) )
+      return(true);
+
+    return(false);
+  }
 };
 
 /// Reviewer's thoughts on the paper (peer review)
@@ -82,6 +92,18 @@ public:
   bool        correctionsRequired;     ///< Paper needs changes before publication
   QString     commentsToAuthors;       ///< Comments sent back to authors
   QString     commentsToChairEditor;   ///< Comments sent back to editor
+
+  /// Equality function
+  bool operator==(const ReviewerMeta &rhs) const
+  {
+    if( (accept == rhs.accept) && (suitability == rhs.suitability) &&
+        (technicalCorrectness == rhs.technicalCorrectness) && (novelty == rhs.novelty) &&
+        (clarity == rhs.clarity) && (relevance == rhs.relevance) && (correctionsRequired == rhs.correctionsRequired) &&
+        (commentsToAuthors == rhs.commentsToAuthors) && (commentsToChairEditor == rhs.commentsToChairEditor) )
+      return(true);
+
+    return(false);
+  }
 };
 
 /// Details for someone to find the paper again
@@ -173,6 +195,31 @@ public:
   bool operator<(const PaperMeta &rhs) const
   {
     return(citation < rhs.citation);
+  }
+
+  /// Equality function
+  bool operator==(const PaperMeta &rhs) const
+  {
+    if( (citation == rhs.citation) && (review == rhs.review) && (paperPath == rhs.paperPath) &&
+        (venue == rhs.venue) && (authors == rhs.authors) && (title == rhs.title) &&
+        (publication == rhs.publication) && (volume == rhs.volume) && (issue == rhs.issue) &&
+        (month == rhs.month) && (year == rhs.year) && (dates == rhs.dates) &&
+        (pageStart == rhs.pageStart) && (pageEnd == rhs.pageEnd) && (URL == rhs.URL) &&
+        (thesis == rhs.thesis) && (institution == rhs.institution) && (location == rhs.location) &&
+        (publisher == rhs.publisher) && (ISBN == rhs.ISBN) && (doi == rhs.doi) &&
+        (note == rhs.note) && (reviewDate == rhs.reviewDate) && (tags == rhs.tags) &&
+        (reviewed == rhs.reviewed) && (reader == rhs.reader) && (reviewer == rhs.reviewer) )
+    {
+      return(true);
+    }
+    else
+      return(false);
+  }
+
+  /// Inequality function
+  bool operator!=(const PaperMeta &rhs) const
+  {
+    return(!(*this == rhs));
   }
 };
 

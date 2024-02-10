@@ -230,6 +230,7 @@ void OrganiserMain::UpdateView()
       element->setText(searchResults[r].citation);
       selected_records++;
     }
+    setTagFilteringEnabled(false);
   }
   else
   {
@@ -242,6 +243,7 @@ void OrganiserMain::UpdateView()
         element->setText(newPapers[r].section("/", -1));
         selected_records++;
       }
+      setTagFilteringEnabled(false);
     }
     else
     {
@@ -316,6 +318,7 @@ void OrganiserMain::UpdateView()
           break;
         }
       }
+      setTagFilteringEnabled(true);
     }
   }
 
@@ -1741,6 +1744,16 @@ void OrganiserMain::deleteReview()
     buildTagList();
     UpdateView();
   }
+}
+
+// Enable tag filtering
+void OrganiserMain::setTagFilteringEnabled(bool enable)
+{
+  ui->tagFilterCombo->setEnabled(enable);
+  ui->tagFilterEdit->setEnabled(enable);
+  ui->tagFilterAddButton->setEnabled(enable);
+  ui->tagFilterClearButton->setEnabled(enable);
+  ui->tagFilterLogicButton->setEnabled(enable);
 }
 
 // Clear details from main window widgets

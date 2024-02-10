@@ -102,6 +102,9 @@ private:
 
   /// Original copy of the metadata
   PaperMeta originalCopy;
+
+  /// Dialog was opened to edit a review
+  bool isEdit;
 };
 
 #endif  // METADIALOG_H
