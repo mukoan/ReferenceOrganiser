@@ -127,6 +127,9 @@ private slots:
   /// Search has finished
   void endSearch();
 
+  /// A search parameter enable was toggled
+  void searchTypeChanged(bool);
+
 private:
   Ui::SearchDialog *ui;
 

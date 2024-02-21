@@ -216,6 +216,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="searchButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Search</string>
           </property>

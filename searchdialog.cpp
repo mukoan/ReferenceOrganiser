@@ -216,6 +216,11 @@ SearchDialog::SearchDialog(QWidget *parent) :
   connect(ui->searchButton,      &QPushButton::released,    this, &SearchDialog::search);
   connect(ui->closeButton,       &QPushButton::released,    this, &QDialog::accept);
   connect(ui->cancelButton,      &QPushButton::released,    this, &QDialog::reject);
+
+  connect(ui->authorsCheck,      &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
+  connect(ui->yearCheck,         &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
+  connect(ui->keywordsCheck,     &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
+  connect(ui->paperPathCheck,    &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
 }
 
 SearchDialog::~SearchDialog()
@@ -326,4 +331,13 @@ void SearchDialog::endSearch()
   ui->resultsStatusLabel->setText(tr("%1 results found").arg(numberResults));
 
   ui->searchButton->setText(tr("Search"));
+}
+
+// A search parameter enable was toggled
+void SearchDialog::searchTypeChanged(bool)
+{
+  bool enable_search = ((ui->authorsCheck->isChecked()) || (ui->yearCheck->isChecked()) ||
+                        (ui->keywordsCheck->isChecked()) || (ui->paperPathCheck->isChecked()));
+
+  ui->searchButton->setEnabled(enable_search);
 }
