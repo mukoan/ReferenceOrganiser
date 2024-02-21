@@ -49,6 +49,9 @@ public:
   void SetPSViewerCLI(const QString &command);
   QString GetPSViewerCLI() const;
 
+  void SetDVIViewerCLI(const QString &command);
+  QString GetDVIViewerCLI() const;
+
   void SetTextViewerCLI(const QString &command);
   QString GetTextViewerCLI() const;
 

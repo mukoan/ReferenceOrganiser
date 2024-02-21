@@ -355,6 +355,7 @@ void OrganiserMain::Settings()
   prefs->SetODTViewerCLI(prefODTViewer);
   prefs->SetPDFViewerCLI(prefPDFViewer);
   prefs->SetPSViewerCLI(prefPSViewer);
+  prefs->SetDVIViewerCLI(prefDVIViewer);
   prefs->SetTextViewerCLI(prefTextViewer);
   prefs->SetBackupViewerCLI(prefBackupViewer);
 
@@ -666,6 +667,7 @@ void OrganiserMain::loadSettings()
   prefODTViewer    = settings.value("odt",    "/Applications/LibreOffice.app/Contents/MacOS/soffice --writer").toString();
   prefPDFViewer    = settings.value("pdf",    "open").toString();
   prefPSViewer     = settings.value("ps",     "open").toString();
+  prefDVIViewer    = settings.value("dvi",    "xdvi").toString();
   prefTextViewer   = settings.value("text",   "open").toString();
   prefBackupViewer = settings.value("backup", "open").toString();
 #elif _WIN32
@@ -673,6 +675,7 @@ void OrganiserMain::loadSettings()
   prefODTViewer    = settings.value("odt",    "soffice --writer").toString();
   prefPDFViewer    = settings.value("pdf",    "explorer").toString();
   prefPSViewer     = settings.value("ps",     "explorer").toString();
+  prefDVIViewer    = settings.value("dvi",    "xdvi").toString();
   prefTextViewer   = settings.value("text",   "explorer").toString();
   prefBackupViewer = settings.value("backup", "explorer").toString();
 #else
@@ -680,6 +683,7 @@ void OrganiserMain::loadSettings()
   prefODTViewer    = settings.value("odt",    "/usr/lib/libreoffice/program/soffice.bin --writer").toString();
   prefPDFViewer    = settings.value("pdf",    "okular").toString();
   prefPSViewer     = settings.value("ps",     "okular").toString();
+  prefDVIViewer    = settings.value("dvi",    "okular").toString();
   prefTextViewer   = settings.value("text",   "kate").toString();
   prefBackupViewer = settings.value("backup", "xdg-open").toString();
 #endif
@@ -733,6 +737,7 @@ void OrganiserMain::saveSettings()
   settings.setValue("odt",    prefODTViewer);
   settings.setValue("pdf",    prefPDFViewer);
   settings.setValue("ps",     prefPSViewer);
+  settings.setValue("dvi",    prefDVIViewer);
   settings.setValue("text",   prefTextViewer);
   settings.setValue("backup", prefBackupViewer);
   settings.endGroup();
@@ -1206,12 +1211,16 @@ void OrganiserMain::openCurrentPaper()
     {
       viewer_string = prefPSViewer;
     }
+    else if(extension == "dvi")
+    {
+      viewer_string = prefDVIViewer;
+    }
     else if(extension == "txt")
     {
       viewer_string = prefTextViewer;
     }
     else
-      viewer_string = prefBackupViewer; // FIXME dvi opened via backup viewer
+      viewer_string = prefBackupViewer;
 
     QStringList cli_components = viewer_string.split(" ");
     if(!cli_components.empty())

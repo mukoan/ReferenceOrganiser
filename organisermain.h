@@ -250,6 +250,7 @@ private:
   QString prefDOCViewer;                 ///< MS Word viewer
   QString prefTextViewer;                ///< Plain text viewer
   QString prefODTViewer;                 ///< LibreOffice viewer
+  QString prefDVIViewer;                 ///< DVI viewer
   QString prefBackupViewer;              ///< Program to use if none of the above
 
   // Miscellaneous preferences and state //

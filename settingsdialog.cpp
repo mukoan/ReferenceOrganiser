@@ -158,6 +158,16 @@ QString SettingsDialog::GetPSViewerCLI() const
   return(ui->psViewerEdit->text());
 }
 
+void SettingsDialog::SetDVIViewerCLI(const QString &command)
+{
+  ui->dviViewerEdit->setText(command);
+}
+
+QString SettingsDialog::GetDVIViewerCLI() const
+{
+  return(ui->dviViewerEdit->text());
+}
+
 void SettingsDialog::SetTextViewerCLI(const QString &command)
 {
   ui->textViewerEdit->setText(command);

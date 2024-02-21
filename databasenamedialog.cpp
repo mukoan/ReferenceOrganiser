@@ -1,3 +1,10 @@
+/**
+ * @file   databasenamedialog.cpp
+ * @brief  Rename database
+ * @author Lyndon Hill
+ * @date   2021.08.21
+ */
+
 #include "databasenamedialog.h"
 #include "ui_databasenamedialog.h"
 

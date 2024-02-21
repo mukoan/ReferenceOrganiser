@@ -5,7 +5,6 @@
  * @date   2021.08.21
  */
 
-
 #ifndef DATABASENAMEDIALOG_H
 #define DATABASENAMEDIALOG_H
 
