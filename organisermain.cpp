@@ -1255,23 +1255,32 @@ void OrganiserMain::showStatus()
 
   // Get statistics
 
-  // TODO: new papers; total reviews; completed reviews
-
   int total_reviews          = db.database.size();
   int completed_reviews      = 0;
   int papers_to_read         = newPapers.size();
   int papers_with_reviews    = 0;
   int papers_without_reviews = 0;
 
+  QDate today = QDate::currentDate();
+  int current_month = today.month();
+  int current_year  = today.year();
+  int reviewed_this_month = 0;
 
   for(int r = 0; r < db.database.size(); r++)
   {
-    if(db.database[r].reader.finished) completed_reviews++;
+    PaperMeta record = db.database[r];
+    if(record.reader.finished) completed_reviews++;
 
-    if(db.database[r].review.isEmpty())
+    if(record.review.isEmpty())
       papers_without_reviews++;
     else
       papers_with_reviews++;
+
+    QDate review_date = record.reviewDate;
+    if((review_date.year() == current_year) && (review_date.month() == current_month))
+    {
+      reviewed_this_month++;
+    }
   }
 
   // Format status
@@ -1284,7 +1293,7 @@ void OrganiserMain::showStatus()
   formatted_text.append(tr("<tr><th>Reviews marked complete</th><td>%1</td></tr>").arg(completed_reviews));
   formatted_text.append(tr("<tr><th>Records missing review</th><td>%1</td></tr>").arg(papers_without_reviews));
   formatted_text.append(tr("<tr><th>New papers to be read</th><td>%1</td></tr>").arg(papers_to_read));
-
+  formatted_text.append(tr("<tr><th>Reviewed this month</th><td>%1</td></tr>").arg(reviewed_this_month));
   formatted_text.append("</table>");
 
   QString rating;
