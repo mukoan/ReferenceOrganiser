@@ -28,6 +28,8 @@ MetaDialog::MetaDialog(QWidget *parent) :
   QPushButton *save_button = ui->buttonBox->button(QDialogButtonBox::Save);
   if(save_button) save_button->setEnabled(false);
 
+  ui->reviewDate->setText(QDate::currentDate().toString(QLocale::system().dateFormat(QLocale::ShortFormat)));
+
   connect(ui->venueCombo,        QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MetaDialog::setVenueType);
   connect(ui->generateButton,    &QPushButton::released,      this, &MetaDialog::generateCite);
   connect(ui->citationEdit,      &QLineEdit::textChanged,     this, &MetaDialog::citationUpdated);

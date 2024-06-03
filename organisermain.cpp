@@ -183,7 +183,7 @@ void OrganiserMain::IngestPaper()
     meta.URL      = add_dialog->GetURL();
     meta.paperPath = paper_file;
 
-     // Move to new papers directory?, especially if have enough info for a citation rename
+    // Move to new papers directory?, especially if have enough info for a citation rename
     if(add_dialog->MoveToStorage()) {
       movePaperToStorage(meta);
     }
@@ -333,7 +333,7 @@ void OrganiserMain::About()
   QMessageBox::about(this, "About Reference Organiser",
                            "Reference Organiser " VERSION "\n"
                            "Technical Paper Organiser\n\n"
-                           "Copyright 2023, Lyndon Hill\n"
+                           "Copyright 2024, Lyndon Hill\n"
                            "http://www.lyndonhill.com");
 }
 
@@ -1265,6 +1265,7 @@ void OrganiserMain::showStatus()
   int current_month = today.month();
   int current_year  = today.year();
   int reviewed_this_month = 0;
+  int reviewed_last_quarter = 0;  // TODO this is not used for quarters
 
   for(int r = 0; r < db.database.size(); r++)
   {
@@ -1277,9 +1278,23 @@ void OrganiserMain::showStatus()
       papers_with_reviews++;
 
     QDate review_date = record.reviewDate;
-    if((review_date.year() == current_year) && (review_date.month() == current_month))
+    if(review_date.year() == current_year)
     {
-      reviewed_this_month++;
+      if(review_date.month() == current_month)
+      {
+        reviewed_this_month++;
+      }
+
+      if(review_date.month() >= current_month - 3)
+        reviewed_last_quarter++;
+    }
+
+    if((review_date.year() == current_year-1) && (current_month < 3))
+    {
+      if(review_date.month() > (current_month - 3 + 12))
+      {
+        reviewed_last_quarter++;
+      }
     }
   }
 
@@ -1294,6 +1309,7 @@ void OrganiserMain::showStatus()
   formatted_text.append(tr("<tr><th>Records missing review</th><td>%1</td></tr>").arg(papers_without_reviews));
   formatted_text.append(tr("<tr><th>New papers to be read</th><td>%1</td></tr>").arg(papers_to_read));
   formatted_text.append(tr("<tr><th>Reviewed this month</th><td>%1</td></tr>").arg(reviewed_this_month));
+  formatted_text.append(tr("<tr><th>Reviewed last 3 months</th><td>%1</td></tr>").arg(reviewed_last_quarter));
   formatted_text.append("</table>");
 
   QString rating;
