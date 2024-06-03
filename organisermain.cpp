@@ -1634,7 +1634,10 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
   bool in_database = false;
   QString cite_searchterm;
   if(!meta.originalCitation.isEmpty() && (meta.originalCitation != meta.citation))
-    cite_searchterm = meta.originalCitation;
+  {
+    cite_searchterm = meta.originalCitation;  // citation changed
+    userHistory.RenameCitation(meta.originalCitation, meta.citation);
+  }
   else
     cite_searchterm = meta.citation;
 

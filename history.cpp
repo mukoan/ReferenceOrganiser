@@ -94,3 +94,18 @@ HistoryItem History::operator[](int i)
   else
     return(items[i]);
 }
+
+// Citation had name changed
+bool History::RenameCitation(const QString &original, const QString &updated)
+{
+  for(int i = 0; i < items.size(); i++)
+  {
+    if(items[i].text == original)
+    {
+      items[i].text = updated;
+      return(true);
+    }
+  }
+
+  return(false);
+}

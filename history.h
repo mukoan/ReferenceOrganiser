@@ -57,6 +57,12 @@ public:
   /// Access items
   HistoryItem operator[](int i);
 
+  /**
+   * Citation had name changed
+   * @return true if citation was updated or false if not found
+   */
+  bool RenameCitation(const QString &original, const QString &updated);
+
 private:
   /// The list of items
   QList<HistoryItem> items;
