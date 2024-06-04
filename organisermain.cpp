@@ -1521,6 +1521,7 @@ void OrganiserMain::editReview()
 
   MetaDialog *edit_dialog = new MetaDialog(this);
   edit_dialog->setWindowTitle(tr("Edit Review"));
+  edit_dialog->SetReadPapersDir(readPapersPath);
   edit_dialog->SetMeta(meta);
   edit_dialog->SetTags(tags);
 
@@ -1542,6 +1543,7 @@ void OrganiserMain::newReview()
 {
   MetaDialog *edit_dialog = new MetaDialog(this);
   edit_dialog->setWindowTitle(tr("New Review"));
+  edit_dialog->SetReadPapersDir(readPapersPath);
   edit_dialog->SetTags(tags);
 
   if(!lastPaperPath.isEmpty()) edit_dialog->SetPaperHuntDir(lastPaperPath);

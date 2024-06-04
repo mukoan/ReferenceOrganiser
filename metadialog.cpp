@@ -34,6 +34,7 @@ MetaDialog::MetaDialog(QWidget *parent) :
   connect(ui->generateButton,    &QPushButton::released,      this, &MetaDialog::generateCite);
   connect(ui->citationEdit,      &QLineEdit::textChanged,     this, &MetaDialog::citationUpdated);
   connect(ui->paperSelectButton, &QPushButton::released,      this, &MetaDialog::locatePaper);
+  connect(ui->paperPathEdit,     &QLineEdit::textEdited,      this, &MetaDialog::checkDenyMove);
   connect(ui->tagAddButton,      &QToolButton::released,      this, &MetaDialog::addTag);
   connect(ui->tagClearButton,    &QToolButton::released,      this, &MetaDialog::clearTags);
   connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::requestToCancel);
@@ -70,6 +71,8 @@ void MetaDialog::SetMeta(const PaperMeta &paper_details)
   ui->doiEdit->setText(paper_details.doi);
   ui->reviewDate->setText(paper_details.reviewDate.toString(QLocale::system().dateFormat(QLocale::ShortFormat)));
   ui->tagsEdit->setText(paper_details.tags);                                 // comma separated tags
+
+  checkDenyMove(paper_details.paperPath);  // Should UI offer to move paper to read papers directory
 
   switch(paper_details.venue)
   {
@@ -399,6 +402,9 @@ void MetaDialog::locatePaperByName(const QString &filename)
   if(paper_file.isEmpty()) return;
 
   ui->paperPathEdit->setText(paper_file);
+
+  checkDenyMove(paper_file);
+
   emit paperLocated(paper_file);
 }
 
@@ -442,6 +448,16 @@ void MetaDialog::citationUpdated(const QString &)
   QPushButton *save_button = ui->buttonBox->button(QDialogButtonBox::Save);
   if(save_button) save_button->setEnabled(!lacks_citation);
   saveContinueButton->setEnabled(!lacks_citation);
+}
+
+// Check if paper path is already in read papers directory
+void MetaDialog::checkDenyMove(const QString &filepath)
+{
+  if(filepath.startsWith(readPapersPath)) {
+    ui->movePapersCheck->setEnabled(false);
+  } else {
+    ui->movePapersCheck->setEnabled(true);
+  }
 }
 
 void MetaDialog::keyPressEvent(QKeyEvent *e)

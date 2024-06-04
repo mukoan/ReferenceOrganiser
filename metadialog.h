@@ -45,6 +45,9 @@ public:
   /// Where to look for papers
   void SetPaperHuntDir(const QString &path) { paperHuntDir = path; }
 
+  /// Where to find read papers
+  void SetReadPapersDir(const QString &path) { readPapersPath = path; }
+
 public slots:
   /// Set the citation: use if not using SetMeta() or used when generating citation
   void SetCitation(const QString &cite);
@@ -87,6 +90,9 @@ private slots:
   /// Citation was edited, enable/disable save button(s)
   void citationUpdated(const QString &);
 
+  /// Check if paper path is already in read papers directory
+  void checkDenyMove(const QString &filepath);
+
 protected:
   void keyPressEvent(QKeyEvent *e);
 
@@ -96,6 +102,7 @@ private:
 
   QString originalCitation; ///< Paper citation before editing
   QString paperHuntDir;
+  QString readPapersPath;   ///< Where read papers are stored
 
   /// User to find the paper PDF or other file type, with citation to try as stem of filename
   void locatePaperByName(const QString &cite);
