@@ -849,6 +849,10 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
   {
     QString formatted_text = QString("<html><body><p><b>%1</b></p><p>New paper: no details in database.</p></body></html>").arg(meta_record.paperPath.section('/', -1));
     ui->detailsViewer->setHtml(formatted_text);
+
+    // Show path so user can open paper
+    ui->openPaperButton->setToolTip("");
+    ui->paperPathLabel->setText(meta_record.paperPath);
     return;
   }
 
