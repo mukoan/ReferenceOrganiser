@@ -61,6 +61,14 @@ public:
   /// User changed directories used for searching for reviews and papers
   bool GetPathsChanged() const { return(pathsChanged); }
 
+  void SetCitationListFont(const QString &name, int size);
+  QString GetCitationListFontName() const;
+  int GetCitationListFontSize() const;
+
+  void SetReviewFont(const QString &name, int size);
+  QString GetReviewFontName() const;
+  int GetReviewFontSize() const;
+
 private slots:
   void AddPapersPath();
 

@@ -359,6 +359,9 @@ void OrganiserMain::Settings()
   prefs->SetTextViewerCLI(prefTextViewer);
   prefs->SetBackupViewerCLI(prefBackupViewer);
 
+  prefs->SetCitationListFont(ui->refList->font().family(), ui->refList->font().pointSize());
+  prefs->SetReviewFont(ui->detailsViewer->font().family(), ui->detailsViewer->font().pointSize());
+
   if(prefs->exec() == QDialog::Accepted)
   {
     papersPaths  = prefs->GetPapersPaths();
@@ -375,6 +378,8 @@ void OrganiserMain::Settings()
     prefTextViewer   = prefs->GetTextViewerCLI();
     prefBackupViewer = prefs->GetBackupViewerCLI();
 
+    ui->refList->setFont(QFont(prefs->GetCitationListFontName(), prefs->GetCitationListFontSize()));
+    ui->detailsViewer->setFont(QFont(prefs->GetReviewFontName(), prefs->GetReviewFontSize()));
     saveSettings();
   }
 }
@@ -689,6 +694,19 @@ void OrganiserMain::loadSettings()
 #endif
   settings.endGroup();
 
+  settings.beginGroup("ui");
+  QString font_name; int font_size;
+  font_name = settings.value("citation_list_font_name", "").toString();
+  font_size = settings.value("citation_list_font_size", 0).toInt();
+  if(font_size > 0)
+    ui->refList->setFont(QFont(font_name, font_size));
+
+  font_name = settings.value("review_display_font_name", "").toString();
+  font_size = settings.value("review_display_font_size", 0).toInt();
+  if(font_size > 0)
+    ui->detailsViewer->setFont(QFont(font_name, font_size));
+  settings.endGroup();
+
   int hist_size = settings.beginReadArray("history");
   for(int i = hist_size-1; i >= 0; i--)
   {
@@ -740,6 +758,13 @@ void OrganiserMain::saveSettings()
   settings.setValue("dvi",    prefDVIViewer);
   settings.setValue("text",   prefTextViewer);
   settings.setValue("backup", prefBackupViewer);
+  settings.endGroup();
+
+  settings.beginGroup("ui");
+  settings.setValue("citation_list_font_name", ui->refList->font().family());
+  settings.setValue("citation_list_font_size", ui->refList->font().pointSize());
+  settings.setValue("review_display_font_name", ui->refList->font().family());
+  settings.setValue("review_display_font_size", ui->refList->font().pointSize());
   settings.endGroup();
 
   settings.beginWriteArray("history");

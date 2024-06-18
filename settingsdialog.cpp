@@ -186,3 +186,37 @@ QString SettingsDialog::GetBackupViewerCLI() const
 {
   return(ui->fallbackViewerEdit->text());
 }
+
+void SettingsDialog::SetCitationListFont(const QString &name, int size)
+{
+  QFont myfont(name);
+  ui->refFontCombo->setCurrentFont(myfont);
+  ui->refFontSizeSpin->setValue(size);
+}
+
+QString SettingsDialog::GetCitationListFontName() const
+{
+  return(ui->refFontCombo->currentFont().family());
+}
+
+int SettingsDialog::GetCitationListFontSize() const
+{
+  return(ui->refFontSizeSpin->value());
+}
+
+void SettingsDialog::SetReviewFont(const QString &name, int size)
+{
+  QFont myfont(name);
+  ui->reviewFontCombo->setCurrentFont(myfont);
+  ui->reviewFontSizeSpin->setValue(size);
+}
+
+QString SettingsDialog::GetReviewFontName() const
+{
+  return(ui->reviewFontCombo->currentFont().family());
+}
+
+int SettingsDialog::GetReviewFontSize() const
+{
+  return(ui->reviewFontSizeSpin->value());
+}
