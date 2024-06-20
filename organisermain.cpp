@@ -360,7 +360,8 @@ void OrganiserMain::Settings()
   prefs->SetBackupViewerCLI(prefBackupViewer);
 
   prefs->SetCitationListFont(ui->refList->font().family(), ui->refList->font().pointSize());
-  prefs->SetReviewFont(ui->detailsViewer->font().family(), ui->detailsViewer->font().pointSize());
+  prefs->SetReviewDisplayFont(ui->detailsViewer->font().family(), ui->detailsViewer->font().pointSize());
+  prefs->SetReviewEditFont(prefReviewEditFontName, prefReviewEditFontSize);
 
   if(prefs->exec() == QDialog::Accepted)
   {
@@ -379,7 +380,9 @@ void OrganiserMain::Settings()
     prefBackupViewer = prefs->GetBackupViewerCLI();
 
     ui->refList->setFont(QFont(prefs->GetCitationListFontName(), prefs->GetCitationListFontSize()));
-    ui->detailsViewer->setFont(QFont(prefs->GetReviewFontName(), prefs->GetReviewFontSize()));
+    ui->detailsViewer->setFont(QFont(prefs->GetReviewDisplayFontName(), prefs->GetReviewDisplayFontSize()));
+    prefReviewEditFontName = prefs->GetReviewEditFontName();
+    prefReviewEditFontSize = prefs->GetReviewEditFontSize();
     saveSettings();
   }
 }
@@ -705,6 +708,14 @@ void OrganiserMain::loadSettings()
   font_size = settings.value("review_display_font_size", 0).toInt();
   if(font_size > 0)
     ui->detailsViewer->setFont(QFont(font_name, font_size));
+
+  font_name = settings.value("review_edit_font_name", "").toString();
+  font_size = settings.value("review_edit_font_size", 0).toInt();
+  if(font_size > 0)
+  {
+    prefReviewEditFontName = font_name;
+    prefReviewEditFontSize = font_size;
+  }
   settings.endGroup();
 
   int hist_size = settings.beginReadArray("history");
@@ -765,6 +776,11 @@ void OrganiserMain::saveSettings()
   settings.setValue("citation_list_font_size", ui->refList->font().pointSize());
   settings.setValue("review_display_font_name", ui->refList->font().family());
   settings.setValue("review_display_font_size", ui->refList->font().pointSize());
+  if(prefReviewEditFontSize > 0)
+  {
+    settings.setValue("review_edit_font_name", prefReviewEditFontName);
+    settings.setValue("review_edit_font_size", prefReviewEditFontSize);
+  }
   settings.endGroup();
 
   settings.beginWriteArray("history");
@@ -1553,6 +1569,7 @@ void OrganiserMain::editReview()
   edit_dialog->SetReadPapersDir(readPapersPath);
   edit_dialog->SetMeta(meta);
   edit_dialog->SetTags(tags);
+  edit_dialog->SetEditFont(prefReviewEditFontName, prefReviewEditFontSize);
 
   if(!lastPaperPath.isEmpty()) edit_dialog->SetPaperHuntDir(lastPaperPath);
 
@@ -1574,6 +1591,7 @@ void OrganiserMain::newReview()
   edit_dialog->setWindowTitle(tr("New Review"));
   edit_dialog->SetReadPapersDir(readPapersPath);
   edit_dialog->SetTags(tags);
+  edit_dialog->SetEditFont(prefReviewEditFontName, prefReviewEditFontSize);
 
   if(!lastPaperPath.isEmpty()) edit_dialog->SetPaperHuntDir(lastPaperPath);
 

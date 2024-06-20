@@ -65,9 +65,13 @@ public:
   QString GetCitationListFontName() const;
   int GetCitationListFontSize() const;
 
-  void SetReviewFont(const QString &name, int size);
-  QString GetReviewFontName() const;
-  int GetReviewFontSize() const;
+  void SetReviewDisplayFont(const QString &name, int size);
+  QString GetReviewDisplayFontName() const;
+  int GetReviewDisplayFontSize() const;
+
+  void SetReviewEditFont(const QString &name, int size);
+  QString GetReviewEditFontName() const;
+  int GetReviewEditFontSize() const;
 
 private slots:
   void AddPapersPath();

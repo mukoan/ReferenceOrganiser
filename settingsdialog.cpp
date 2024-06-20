@@ -204,19 +204,36 @@ int SettingsDialog::GetCitationListFontSize() const
   return(ui->refFontSizeSpin->value());
 }
 
-void SettingsDialog::SetReviewFont(const QString &name, int size)
+void SettingsDialog::SetReviewDisplayFont(const QString &name, int size)
 {
   QFont myfont(name);
   ui->reviewFontCombo->setCurrentFont(myfont);
   ui->reviewFontSizeSpin->setValue(size);
 }
 
-QString SettingsDialog::GetReviewFontName() const
+QString SettingsDialog::GetReviewDisplayFontName() const
 {
   return(ui->reviewFontCombo->currentFont().family());
 }
 
-int SettingsDialog::GetReviewFontSize() const
+int SettingsDialog::GetReviewDisplayFontSize() const
 {
   return(ui->reviewFontSizeSpin->value());
+}
+
+void SettingsDialog::SetReviewEditFont(const QString &name, int size)
+{
+  QFont myfont(name);
+  ui->reviewEditFontCombo->setCurrentFont(myfont);
+  ui->reviewEditFontSizeSpin->setValue(size);
+}
+
+QString SettingsDialog::GetReviewEditFontName() const
+{
+  return(ui->reviewEditFontCombo->currentFont().family());
+}
+
+int SettingsDialog::GetReviewEditFontSize() const
+{
+  return(ui->reviewEditFontSizeSpin->value());
 }

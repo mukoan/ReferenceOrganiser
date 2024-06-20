@@ -262,6 +262,9 @@ private:
   QString lastPaperPath;                 ///< Path to last paper
   DatabaseHandler db;                    ///< Handles loading and saving of the current database
 
+  QString prefReviewEditFontName;        ///< Family of font used for editing reviews
+  int     prefReviewEditFontSize;        ///< Size of font used for editing reviews
+
   QRegularExpression matchBracesExpression;  ///< Match braces for converting review link markdown
   QRegularExpression hyperlinkRegExpression; ///< Match hyperlink
 };

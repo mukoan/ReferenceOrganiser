@@ -277,6 +277,15 @@ bool MetaDialog::GetIngestPaper()
   return(ui->movePapersCheck->isChecked());
 }
 
+// Set font to use in editor
+void MetaDialog::SetEditFont(const QString &font_name, int font_size)
+{
+  if(font_size > 0)
+  {
+    ui->reviewEdit->setFont(QFont(font_name, font_size));
+  }
+}
+
 // Set the citation: use if not using SetMeta() or used when generating citation
 void MetaDialog::SetCitation(const QString &cite)
 {

@@ -48,6 +48,9 @@ public:
   /// Where to find read papers
   void SetReadPapersDir(const QString &path) { readPapersPath = path; }
 
+  /// Set font to use in editor
+  void SetEditFont(const QString &font_name, int font_size);
+
 public slots:
   /// Set the citation: use if not using SetMeta() or used when generating citation
   void SetCitation(const QString &cite);
