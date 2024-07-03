@@ -176,9 +176,9 @@ PaperMeta MetaDialog::GetMeta()
     case 10: my_paper.venue = VenueType::UnknownVenue;  break;
   }
 
-  my_paper.authors     = ui->authorsEdit->text();
-  my_paper.title       = ui->titleEdit->text();
-  my_paper.publication = ui->publicationEdit->text();
+  my_paper.authors     = ui->authorsEdit->text().simplified();
+  my_paper.title       = ui->titleEdit->text().simplified();
+  my_paper.publication = ui->publicationEdit->text().simplified();
   my_paper.volume      = ui->volumeEdit->text();
   my_paper.issue       = ui->issueEdit->text();
   my_paper.month       = ui->monthEdit->text();
@@ -197,9 +197,9 @@ PaperMeta MetaDialog::GetMeta()
     case 4: my_paper.thesis = ThesisType::UnknownThesisType; break;
   }
 
-  my_paper.institution      = ui->institutionEdit->text();
-  my_paper.location         = ui->locationEdit->text();
-  my_paper.publisher        = ui->publisherEdit->text();
+  my_paper.institution      = ui->institutionEdit->text().simplified();
+  my_paper.location         = ui->locationEdit->text().simplified();
+  my_paper.publisher        = ui->publisherEdit->text().simplified();
   my_paper.ISBN             = ui->isbnEdit->text();
   my_paper.doi              = ui->doiEdit->text().trimmed();
 
@@ -292,6 +292,19 @@ void MetaDialog::SetCitation(const QString &cite)
   ui->citationEdit->setText(cite);
 }
 
+// Let the dialog know aboui possible duplicates
+void MetaDialog::SuggestDuplicates(const QVector<PaperMeta> &duplicates)
+{
+  // TODO
+  std::cout << duplicates.size() << " potential duplicate reviews found\n";
+  for(int p = 0; p < duplicates.size(); p++) {
+    std::cout << "[" << duplicates[p].citation.toStdString() << "] '"
+              << duplicates[p].title.toStdString() << "', "
+              << duplicates[p].authors.toStdString() << ", "
+              << duplicates[p].year.toStdString() << "\n";
+  }
+}
+
 // Venue type was changed
 void MetaDialog::setVenueType(int new_venue)
 {
@@ -303,6 +316,7 @@ void MetaDialog::setVenueType(int new_venue)
 void MetaDialog::generateCite()
 {
   emit requestCitation(ui->authorsEdit->text(), ui->yearEdit->text());
+  emit checkDuplicates(ui->authorsEdit->text(), ui->titleEdit->text(), ui->yearEdit->text());
 }
 
 // Request meta to be saved
