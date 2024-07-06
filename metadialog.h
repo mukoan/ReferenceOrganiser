@@ -11,6 +11,7 @@
 
 #include <QDialog>
 #include <QPushButton>
+#include <QVector>
 
 #include "papermeta.h"
 
@@ -55,12 +56,18 @@ public slots:
   /// Set the citation: use if not using SetMeta() or used when generating citation
   void SetCitation(const QString &cite);
 
+  /// Let the dialog know aboui possible duplicates
+  void SuggestDuplicates(const QVector<PaperMeta> &duplicates);
+
 signals:
   /// Details were updated
   void updatedDetails(PaperMeta &review);
 
   /// Request a citation for the given authors and year
   void requestCitation(const QString &authors, const QString &year);
+
+  /// Check if the reference has already been added
+  void checkDuplicates(const QString &authors, const QString &title, const QString &year);
 
   /// User found a paper
   void paperLocated(const QString &paper_path);

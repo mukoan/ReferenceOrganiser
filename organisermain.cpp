@@ -38,6 +38,33 @@
 #include "reviewparser.h"
 #include "recordlistitem.h"
 
+// Remove accents from text
+// See: https://stackoverflow.com/questions/14009522/how-to-remove-accents-diacritic-marks-from-a-string-in-qt
+QString RemoveAccents(const QString &text)
+{
+  QString diacritic_letters;
+  QStringList non_diacritic_letters;
+
+  diacritic_letters = QString::fromUtf8("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ");
+  non_diacritic_letters << "S"<<"OE"<<"Z"<<"s"<<"oe"<<"z"<<"Y"<<"Y"<<"u"<<"A"<<"A"<<"A"<<"A"<<"A"<<"A"<<"AE"<<"C"<<"E"<<"E"<<"E"<<"E"<<"I"<<"I"<<"I"<<"I"<<"D"<<"N"<<"O"<<"O"<<"O"<<"O"<<"O"<<"O"<<"U"<<"U"<<"U"<<"U"<<"Y"<<"s"<<"a"<<"a"<<"a"<<"a"<<"a"<<"a"<<"ae"<<"c"<<"e"<<"e"<<"e"<<"e"<<"i"<<"i"<<"i"<<"i"<<"o"<<"n"<<"o"<<"o"<<"o"<<"o"<<"o"<<"o"<<"u"<<"u"<<"u"<<"u"<<"y"<<"y";
+
+  QString output = "";
+  for(int i = 0; i < text.length(); i++)
+  {
+    QChar c = text[i];
+    int dIndex = diacritic_letters.indexOf(c);
+    if(dIndex < 0)
+    {
+      output.append(c);
+    } else {
+      QString replacement = non_diacritic_letters[dIndex];
+      output.append(replacement);
+    }
+  }
+
+  return(output);
+}
+
 OrganiserMain::OrganiserMain(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::OrganiserMain)
@@ -916,7 +943,13 @@ void OrganiserMain::displayFormattedDetails(const PaperMeta &meta_record)
 
   if(!meta_record.publication.isEmpty())
   {
-    formatted_text.append(QString("Appeared in %1").arg(meta_record.publication));
+    if((meta_record.venue == VenueType::Conference) && (!meta_record.publication.toLower().contains(tr("conference"))))
+    {
+        formatted_text.append(tr("Appeared in conference %1").arg(meta_record.publication));
+    }
+    else
+      formatted_text.append(tr("Appeared in %1").arg(meta_record.publication));
+
     if(!meta_record.volume.isEmpty()) formatted_text.append(tr(", vol. %1").arg(meta_record.volume));
     if(!meta_record.issue.isEmpty()) formatted_text.append(tr(", no. %1").arg(meta_record.issue));
 
@@ -1578,8 +1611,10 @@ void OrganiserMain::editReview()
 
   connect(edit_dialog, &MetaDialog::updatedDetails,     this,        &OrganiserMain::modifyOrNew);
   connect(edit_dialog, &MetaDialog::requestCitation,    this,        &OrganiserMain::generateKey);
+  connect(edit_dialog, &MetaDialog::checkDuplicates,    this,        &OrganiserMain::searchDuplicates);
   connect(edit_dialog, &MetaDialog::paperLocated,       this,        &OrganiserMain::setLastPaperLocation);
   connect(this,        &OrganiserMain::haveNewCitation, edit_dialog, &MetaDialog::SetCitation);
+  connect(this,        &OrganiserMain::duplicatesFound, edit_dialog, &MetaDialog::SuggestDuplicates);
 
   edit_dialog->show();
 }
@@ -1597,8 +1632,10 @@ void OrganiserMain::newReview()
 
   connect(edit_dialog, &MetaDialog::updatedDetails,     this,        &OrganiserMain::modifyOrNew);
   connect(edit_dialog, &MetaDialog::requestCitation,    this,        &OrganiserMain::generateKey);
+  connect(edit_dialog, &MetaDialog::checkDuplicates,    this,        &OrganiserMain::searchDuplicates);
   connect(edit_dialog, &MetaDialog::paperLocated,       this,        &OrganiserMain::setLastPaperLocation);
   connect(this,        &OrganiserMain::haveNewCitation, edit_dialog, &MetaDialog::SetCitation);
+  connect(this,        &OrganiserMain::duplicatesFound, edit_dialog, &MetaDialog::SuggestDuplicates);
 
   edit_dialog->show();
 }
@@ -2249,6 +2286,58 @@ void OrganiserMain::checkCitationAvailable(const QString &citation)
 {
   bool available = !checkCitationExists(citation);
   emit citationCheckResult(available);
+}
+
+// Search database for papers similar to that given
+void OrganiserMain::searchDuplicates(const QString &authors, const QString &title, const QString &year)
+{
+  QString title_noaccents = RemoveAccents(title).toLower();
+  QString authors_noaccents = RemoveAccents(authors).toLower();
+
+  QVector<PaperMeta> potential_matches;
+
+  // Check database for similar paper
+  for(int i = 0; i < db.database.size(); i++)
+  {
+    bool match = false;        // paper is a match
+    bool title_match = false;  // title is a weak match
+
+    PaperMeta record = db.database[i];
+    if(record.title.toLower() == title.toLower())
+    {
+      match = true;  // exact match to title
+    }
+    else
+    {
+      if(RemoveAccents(record.title).toLower() == title_noaccents)
+        title_match = true;  // match when ignoring accents
+    }
+
+    bool year_match = false;
+    int iyear = year.toInt();
+    if(abs(iyear - record.year.toInt()) <= 1)  // review of preprint may have happened a year before reviewing published paper
+      year_match = true;  // weak year match
+
+    bool authors_match = false;
+    if(record.authors.toLower() == authors.toLower())  // TODO preprocess - also ignore non family names
+      authors_match = true;  // exact authors match
+    else
+    {
+      // Weak authors match
+      if(RemoveAccents(record.authors).toLower() == authors_noaccents)
+        authors_match = true;
+
+      // TODO reduce authors names to family names
+    }
+
+    if((title_match && year_match) || (title_match && authors_match))
+      match = true;
+
+    if(match) potential_matches.push_back(record);
+  }
+
+  if(!potential_matches.empty())
+    emit duplicatesFound(potential_matches);
 }
 
 // Checks if citation is in use

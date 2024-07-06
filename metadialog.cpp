@@ -295,7 +295,8 @@ void MetaDialog::SetCitation(const QString &cite)
 // Let the dialog know aboui possible duplicates
 void MetaDialog::SuggestDuplicates(const QVector<PaperMeta> &duplicates)
 {
-  // TODO
+  // TODO: display in dialog
+
   std::cout << duplicates.size() << " potential duplicate reviews found\n";
   for(int p = 0; p < duplicates.size(); p++) {
     std::cout << "[" << duplicates[p].citation.toStdString() << "] '"

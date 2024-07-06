@@ -25,6 +25,10 @@
 /// Maximum number of history items to show in the menu
 #define MAX_HISTORY_ENTRIES 15
 
+// Returns text with accents removed
+QString RemoveAccents(const QString &text);
+
+
 namespace Ui {
 class OrganiserMain;
 }
@@ -91,6 +95,9 @@ signals:
 
   /// Output after checking a citation
   void citationCheckResult(bool result);
+
+  /// Potential duplicates to given query on checkDuplicates()
+  void duplicatesFound(const QVector<PaperMeta> &dupes);
 
 protected:
    void closeEvent(QCloseEvent *);
@@ -185,6 +192,9 @@ private slots:
 
   /// Check whether the citation is in use, emits citationCheckResult
   void checkCitationAvailable(const QString &citation);
+
+  /// Search database for papers similar to that given
+  void searchDuplicates(const QString &authors, const QString &title, const QString &year);
 
   /// Save current database - always tries to save
   bool saveDatabase();
