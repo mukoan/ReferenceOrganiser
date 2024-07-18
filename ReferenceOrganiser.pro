@@ -21,6 +21,7 @@ SOURCES += main.cpp \
     databasefilewriter.cpp \
     databasehandler.cpp \
     databasenamedialog.cpp \
+    duplicatesviewer.cpp \
     history.cpp \
     metadialog.cpp \
     organisermain.cpp \
@@ -38,6 +39,7 @@ HEADERS  += organisermain.h \
     databasefilewriter.h \
     databasehandler.h \
     databasenamedialog.h \
+    duplicatesviewer.h \
     history.h \
     metadialog.h \
     settingsdialog.h \
@@ -52,6 +54,7 @@ FORMS    += organisermain.ui \
     addpaper.ui \
     createdatabasedialog.ui \
     databasenamedialog.ui \
+    duplicatesdialog.ui \
     metadialog.ui \
     settings.ui \
     searchdialog.ui

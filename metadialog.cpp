@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "duplicatesviewer.h"
 #include "metadialog.h"
 #include "ui_metadialog.h"
 
@@ -295,15 +296,11 @@ void MetaDialog::SetCitation(const QString &cite)
 // Let the dialog know aboui possible duplicates
 void MetaDialog::SuggestDuplicates(const QVector<PaperMeta> &duplicates)
 {
-  // TODO: display in dialog
+  // Display in potential duplicates in dialog
 
-  std::cout << duplicates.size() << " potential duplicate reviews found\n";
-  for(int p = 0; p < duplicates.size(); p++) {
-    std::cout << "[" << duplicates[p].citation.toStdString() << "] '"
-              << duplicates[p].title.toStdString() << "', "
-              << duplicates[p].authors.toStdString() << ", "
-              << duplicates[p].year.toStdString() << "\n";
-  }
+  DuplicatesViewer *viewer = new DuplicatesViewer(this);
+  viewer->SetDuplicates(duplicates);
+  viewer->show();
 }
 
 // Venue type was changed

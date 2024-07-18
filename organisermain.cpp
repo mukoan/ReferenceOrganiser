@@ -2311,6 +2311,19 @@ void OrganiserMain::searchDuplicates(const QString &authors, const QString &titl
     {
       if(RemoveAccents(record.title).toLower() == title_noaccents)
         title_match = true;  // match when ignoring accents
+      else
+      {
+        // Compare titles for matching words
+
+        QStringList list1 = record.title.split(u' ', Qt::SkipEmptyParts);
+        QStringList list2 = title.split(u' ', Qt::SkipEmptyParts);
+
+        int matched_words = 0;
+        for(int w = 0; w < list1.size(); w++) {
+          if(list2.contains(list1[w], Qt::CaseInsensitive)) matched_words++;
+        }
+        if(matched_words >= 0.75*list1.size()) title_match = true;
+      }
     }
 
     bool year_match = false;
@@ -2319,7 +2332,7 @@ void OrganiserMain::searchDuplicates(const QString &authors, const QString &titl
       year_match = true;  // weak year match
 
     bool authors_match = false;
-    if(record.authors.toLower() == authors.toLower())  // TODO preprocess - also ignore non family names
+    if(record.authors.toLower() == authors.toLower())
       authors_match = true;  // exact authors match
     else
     {
@@ -2327,9 +2340,40 @@ void OrganiserMain::searchDuplicates(const QString &authors, const QString &titl
       if(RemoveAccents(record.authors).toLower() == authors_noaccents)
         authors_match = true;
 
-      // TODO reduce authors names to family names
+      // Try to reduce authors names
+      QStringList new_author_list = authors_noaccents.split(',', Qt::SkipEmptyParts);
+      QStringList other_author_list = RemoveAccents(record.authors).toLower().split(',', Qt::SkipEmptyParts);
+      if(new_author_list.size() == other_author_list.size())
+      {
+        int iname = 0;
+        bool name_similar = true;
+
+        // Simple. This algorithm could fail if there were multiple authors with the same name
+        // The idea is that "A. Aaron, B. Blake, D. Denise" would match with "Adam Aaron, Brian Blake, Diane Denise"
+        // but too simple so "Aaron Jones, Blake Smith and Denise Roberts" would also match which would be wrong.
+        // Numerous other combinations would be broken too. It's only meant to be a weak match.
+        while(iname < new_author_list.size())
+        {
+          bool name_found = false;
+          QStringList name_by_parts = new_author_list[iname].split(' ', Qt::SkipEmptyParts);
+          for(int pname = 0; pname < name_by_parts.size(); pname++) {
+            if(other_author_list[iname].indexOf(name_by_parts[pname]) >= 0) {
+              name_found = true;
+              break;
+            }
+          }
+          if(!name_found) {
+            name_similar = false;
+            break;
+          }
+          iname++;
+        }
+
+        if(name_similar) authors_match = true;
+      }
     }
 
+    // For weak match test there must be multiple matches
     if((title_match && year_match) || (title_match && authors_match))
       match = true;
 
