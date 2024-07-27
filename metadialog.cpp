@@ -187,7 +187,20 @@ PaperMeta MetaDialog::GetMeta()
   my_paper.dates       = ui->datesEdit->text();
   my_paper.pageStart   = ui->pageStartEdit->text();
   my_paper.pageEnd     = ui->pageEndEdit->text();
-  my_paper.URL         = ui->urlEdit->text().trimmed();
+
+  // Remove any additional whitespace; but there may be multiple URLs separated
+  // by commas
+  QString url          = ui->urlEdit->text();
+  if(url.contains(',')) {
+    // Trim individual URLs
+    QStringList separate_urls = url.split(',');
+    for(auto &u : separate_urls)
+      u = u.trimmed();
+    url = separate_urls.join(',');
+    my_paper.URL = url;
+  } else {
+    my_paper.URL = url.trimmed();
+  }
 
   switch(ui->thesisCombo->currentIndex())
   {
