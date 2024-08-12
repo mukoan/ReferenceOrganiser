@@ -5,6 +5,8 @@
  * @date   2017.08.01
  */
 
+#include <iostream>
+
 #include <QFileDialog>
 #include <QRegularExpression>
 
@@ -257,6 +259,8 @@ void SearchDialog::search()
 
   ui->busyWidget->start();
 
+  QString search_params;
+
   // connect to set results
   searchThread = new QThread;
   searchThread->setObjectName("RefOrg-Search");
@@ -265,12 +269,19 @@ void SearchDialog::search()
   searchObj->SetData(citations);
 
   if(ui->authorsCheck->isChecked())
+  {
     searchObj->SetAuthors(ui->authorsEdit->text());
+    search_params.append(QString("authors=(%1)").arg(ui->authorsEdit->text()));
+  }
   else
     searchObj->SetAuthors("");
 
   if(ui->yearCheck->isChecked())
+  {
     searchObj->SetYears(ui->yearStartSpin->value(), ui->yearEndSpin->value());
+    if(!search_params.isEmpty()) search_params.append(";");
+    search_params.append(QString("years=(%1,%2)").arg(ui->yearStartSpin->value()).arg(ui->yearEndSpin->value()));
+  }
   else
     searchObj->SetYears(-1, -1);
 
@@ -278,6 +289,8 @@ void SearchDialog::search()
   {
     QString keywords_simple = ui->keywordsEdit->text().simplified().toLower();
     searchObj->SetKeywords(keywords_simple, ui->keywordsTitleCheck->isChecked(), ui->keywordsReviewCheck->isChecked());
+    if(!search_params.isEmpty()) search_params.append(";");
+    search_params.append(QString("keywords=(%1)").arg(keywords_simple));
   }
   else
     searchObj->SetKeywords("", false, false);
@@ -285,7 +298,12 @@ void SearchDialog::search()
   if(ui->paperPathCheck->isChecked())
   {
     searchObj->SetPaperPath(ui->paperPathEdit->text());
+    if(!search_params.isEmpty()) search_params.append(";");
+    search_params.append(QString("keywords=(%1)").arg(ui->paperPathEdit->text()));
   }
+
+  // TODO store search params in a log and allow user to access to rerun the same search
+  std::cout << "Searching on " << search_params.toStdString() << "\n";
 
   ui->searchButton->setText(tr("Halt"));
 

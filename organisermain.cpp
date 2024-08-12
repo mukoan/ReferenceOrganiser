@@ -1738,6 +1738,19 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
     }
   }
 
+  if(ui->viewCombo->currentIndex() == 4)
+  {
+    // Just edited a search result
+    for(int r = 0; r < searchResults.size(); r++)
+    {
+      if(searchResults[r].citation == cite_searchterm)
+      {
+        searchResults[r] = meta;
+        break;
+      }
+    }
+  }
+
   if(!in_database)
   {
     // Not in database -> add to database
