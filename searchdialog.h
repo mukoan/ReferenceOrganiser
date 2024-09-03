@@ -15,6 +15,9 @@
 
 #include "papermeta.h"
 
+/// Number of search queries that will be stored
+#define MAX_SIZE_SEARCH_HISTORY 20
+
 /**
  * @brief Object to perform search in another thread
  */
@@ -115,6 +118,9 @@ private slots:
   /// There was a change to the year range: enforce validity
   void yearChange(int);
 
+  /// Set the GUI to the given search, in the logged search format
+  void setSearchParams(const QString &query);
+
   /// Perform search
   void search();
 
@@ -130,7 +136,20 @@ private slots:
   /// A search parameter enable was toggled
   void searchTypeChanged(bool);
 
+  /// Clear search parameters
+  void clearParams();
+
+  /// Change to a historic search
+  void navigateHistoryPrevious();
+  void navigateHistoryNext();
+
 private:
+  /// Retrieve previous searches
+  void loadSearchHistory();
+
+  /// Store searches
+  void saveSearchHistory();
+
   Ui::SearchDialog *ui;
 
   QThread  *searchThread;
@@ -138,10 +157,12 @@ private:
 
   const QVector<PaperMeta> *citations;
   QStringList resultList;
+  QStringList searches;
 
   QString papersReadDir;
 
   int numberResults;
+  int searchIndex;        ///< Index into search history, 0 = current, 1 = last search, 2 = one before that
 };
 
 #endif  // SEARCHDIALOG_H

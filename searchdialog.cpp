@@ -9,6 +9,7 @@
 
 #include <QFileDialog>
 #include <QRegularExpression>
+#include <QSettings>
 
 #include "searchdialog.h"
 #include "ui_searchdialog.h"
@@ -205,9 +206,12 @@ void Searcher::halt()
 
 SearchDialog::SearchDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SearchDialog)
+    ui(new Ui::SearchDialog),
+    searchIndex(0)
 {
   ui->setupUi(this);
+
+  loadSearchHistory();
 
   yearChange(0);
   numberResults = 0;
@@ -223,10 +227,14 @@ SearchDialog::SearchDialog(QWidget *parent) :
   connect(ui->yearCheck,         &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
   connect(ui->keywordsCheck,     &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
   connect(ui->paperPathCheck,    &QAbstractButton::toggled, this, &SearchDialog::searchTypeChanged);
+
+  connect(ui->historyDownButton, &QToolButton::released,    this, &SearchDialog::navigateHistoryNext);
+  connect(ui->historyUpButton,   &QToolButton::released,    this, &SearchDialog::navigateHistoryPrevious);
 }
 
 SearchDialog::~SearchDialog()
 {
+  saveSearchHistory();
   delete ui;
 }
 
@@ -248,6 +256,70 @@ void SearchDialog::yearChange(int)
 {
   ui->yearStartSpin->setMaximum(ui->yearEndSpin->value());
   ui->yearEndSpin->setMinimum(ui->yearStartSpin->value());
+}
+
+
+// Set the GUI to the given search, in the logged search format
+void SearchDialog::setSearchParams(const QString &query)
+{
+  // std::cout << "Setting search parameters to " << query.toStdString() << "\n";
+
+  // Clear GUI
+  ui->authorsCheck->setChecked(false);
+  ui->yearCheck->setChecked(false);
+  ui->keywordsCheck->setChecked(false);
+  ui->paperPathCheck->setChecked(false);
+
+  // Divide string by semicolons
+
+  QStringList properties = query.split(';', Qt::SkipEmptyParts);
+
+  // Separate into key-value pairs
+
+  for(int i = 0; i < properties.size(); i++)
+  {
+    QStringList kv = properties[i].split('=');
+
+    if(kv.size() != 2) continue;
+
+    QString key = kv[0];
+    QString value = kv[1].mid(1, kv[1].size()-2); // remove brackets
+
+    // std::cout << "s key: " << kv[0].toStdString() << " value: " << kv[1].toStdString() << "\n";
+
+    // Authors
+    if(key == "authors") {
+      ui->authorsEdit->setText(value);
+      ui->authorsCheck->setChecked(true);
+    }
+
+    // Years
+    if(key == "years") {
+      // std::cout << "setting search year range\n";
+      QStringList duration = value.split(',');
+      if(duration.size() == 2)
+      {
+        int start = duration[0].toInt();
+        int end   = duration[1].toInt();
+        ui->yearStartSpin->setValue(start);
+        ui->yearEndSpin->setValue(end);
+        ui->yearCheck->setChecked(true);
+      }
+    }
+
+    // Keywords
+    if(key == "keywords") {
+      // std::cout << "setting search keywords (" << value.toStdString() << ")\n";
+      ui->keywordsEdit->setText(value);
+      ui->keywordsCheck->setChecked(true);
+    }
+
+    // Path to paper
+    if(key == "paper_path") {
+      ui->paperPathEdit->setText(value);
+      ui->paperPathCheck->setChecked(true);
+    }
+  }
 }
 
 // Perform search
@@ -299,12 +371,15 @@ void SearchDialog::search()
   {
     searchObj->SetPaperPath(ui->paperPathEdit->text());
     if(!search_params.isEmpty()) search_params.append(";");
-    search_params.append(QString("keywords=(%1)").arg(ui->paperPathEdit->text()));
+    search_params.append(QString("paper_path=(%1)").arg(ui->paperPathEdit->text()));
   }
 
-  // TODO store search params in a log and allow user to access to rerun the same search
-  std::cout << "Searching on " << search_params.toStdString() << "\n";
+  // Store search params in a log and allow user to access to rerun the same search
+  // std::cout << "Searching on " << search_params.toStdString() << "\n";
+  searches << search_params;
+  if(searches.count() > MAX_SIZE_SEARCH_HISTORY) searches.pop_front();
 
+  ui->historyUpButton->setEnabled(true);  // Too early as search hasn't returned yet?
   ui->searchButton->setText(tr("Halt"));
 
   searchObj->moveToThread(searchThread);
@@ -358,4 +433,99 @@ void SearchDialog::searchTypeChanged(bool)
                         (ui->keywordsCheck->isChecked()) || (ui->paperPathCheck->isChecked()));
 
   ui->searchButton->setEnabled(enable_search);
+}
+
+// Retrieve previous searches
+void SearchDialog::loadSearchHistory()
+{
+  QSettings settings("lyndonhill.com", "RefOrg-Searches");
+  settings.beginGroup("queries");
+  unsigned int hsize = settings.beginReadArray("parameters");
+  for(unsigned int i = 0; i < hsize; i++)
+  {
+    settings.setArrayIndex(i);
+    searches << settings.value("params").toString();
+  }
+  settings.endArray();
+  settings.endGroup();
+
+  if(searches.count())
+    ui->historyUpButton->setEnabled(true);
+}
+
+// Store searches
+void SearchDialog::saveSearchHistory()
+{
+  QSettings settings("lyndonhill.com", "RefOrg-Searches");
+  settings.beginGroup("queries");
+  settings.beginWriteArray("parameters");
+  for(unsigned int i = 0; i < searches.count(); i++)
+  {
+    settings.setArrayIndex(i);
+    settings.setValue("params", searches[i]);
+  }
+  settings.endArray();
+  settings.endGroup();
+}
+
+// Clear search parameters
+void SearchDialog::clearParams()
+{
+  ui->authorsCheck->setChecked(false);
+  ui->keywordsCheck->setChecked(false);
+  ui->keywordsCheck->setChecked(false);
+  ui->paperPathCheck->setChecked(false);
+
+  ui->authorsEdit->clear();
+  ui->keywordsEdit->clear();
+  ui->paperPathEdit->clear();
+
+  ui->yearStartSpin->setValue(ui->yearStartSpin->minimum());
+  ui->yearEndSpin->setValue(ui->yearEndSpin->maximum());
+}
+
+// Change to previous historic search
+void SearchDialog::navigateHistoryPrevious()
+{
+  searchIndex++;
+  if(searchIndex > searches.count()) {
+    searchIndex = searches.count();
+    // No action; this should not be possible
+  } else if(searchIndex <= searches.count()) {
+    // Set parameters
+    QString param_set = searches[searches.count() - searchIndex];
+    setSearchParams(param_set);
+  }
+
+  // std::cout << "searchIndex now " << searchIndex << " of " << searches.count() << "\n";
+
+  if(searchIndex > 0)
+    ui->historyDownButton->setEnabled(true);
+
+  if(searchIndex == searches.count())
+    ui->historyUpButton->setEnabled(false);
+}
+
+// Change to next historic search
+void SearchDialog::navigateHistoryNext()
+{
+  searchIndex--;
+  if(searchIndex < 0) {
+    searchIndex = 0;
+    // No action; this should not be possible
+  } else if(searchIndex == 0) {
+    // Clear parameters if back to start
+    clearParams();
+    ui->historyDownButton->setEnabled(false);
+  } else {
+    // Set parameters
+    QString param_set = searches[searches.count() - searchIndex];
+    setSearchParams(param_set);
+  }
+
+  // std::cout << "searchIndex now " << searchIndex << " of " << searches.count() << "\n";
+
+  if(searchIndex < searches.count()) {
+    ui->historyUpButton->setEnabled(true);
+  }
 }
