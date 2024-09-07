@@ -215,6 +215,7 @@ SearchDialog::SearchDialog(QWidget *parent) :
 
   yearChange(0);
   numberResults = 0;
+  semicolonRegex.setPattern("(?<!&);"); // Use negative lookbehind to ensure semicolon is not preceded by an ampersand
 
   connect(ui->paperSelectButton, &QToolButton::released,    this, &SearchDialog::selectPaperPath);
   connect(ui->yearStartSpin,     &QSpinBox::valueChanged,   this, &SearchDialog::yearChange);
@@ -265,14 +266,11 @@ void SearchDialog::setSearchParams(const QString &query)
   // std::cout << "Setting search parameters to " << query.toStdString() << "\n";
 
   // Clear GUI
-  ui->authorsCheck->setChecked(false);
-  ui->yearCheck->setChecked(false);
-  ui->keywordsCheck->setChecked(false);
-  ui->paperPathCheck->setChecked(false);
+  clearParams();
 
   // Divide string by semicolons
 
-  QStringList properties = query.split(';', Qt::SkipEmptyParts);
+  QStringList properties = query.split(semicolonRegex, Qt::SkipEmptyParts);
 
   // Separate into key-value pairs
 
@@ -284,6 +282,10 @@ void SearchDialog::setSearchParams(const QString &query)
 
     QString key = kv[0];
     QString value = kv[1].mid(1, kv[1].size()-2); // remove brackets
+
+    // De-escape semicolon : in case user puts semicolon in authors or keywords, it must be escaped.
+    // We convert a ';' to "&;" when parameters are encoded
+    value.replace(QString("&;"), QString(";"));
 
     // std::cout << "s key: " << kv[0].toStdString() << " value: " << kv[1].toStdString() << "\n";
 
@@ -342,8 +344,10 @@ void SearchDialog::search()
 
   if(ui->authorsCheck->isChecked())
   {
-    searchObj->SetAuthors(ui->authorsEdit->text());
-    search_params.append(QString("authors=(%1)").arg(ui->authorsEdit->text()));
+    QString authors = ui->authorsEdit->text();
+    searchObj->SetAuthors(authors);
+    authors.replace(QString(";"), QString("&;")); // Escape semicolon
+    search_params.append(QString("authors=(%1)").arg(authors));
   }
   else
     searchObj->SetAuthors("");
@@ -361,6 +365,7 @@ void SearchDialog::search()
   {
     QString keywords_simple = ui->keywordsEdit->text().simplified().toLower();
     searchObj->SetKeywords(keywords_simple, ui->keywordsTitleCheck->isChecked(), ui->keywordsReviewCheck->isChecked());
+    keywords_simple.replace(QString(";"), QString("&;")); // Escape semicolon
     if(!search_params.isEmpty()) search_params.append(";");
     search_params.append(QString("keywords=(%1)").arg(keywords_simple));
   }
@@ -472,7 +477,7 @@ void SearchDialog::saveSearchHistory()
 void SearchDialog::clearParams()
 {
   ui->authorsCheck->setChecked(false);
-  ui->keywordsCheck->setChecked(false);
+  ui->yearCheck->setChecked(false);
   ui->keywordsCheck->setChecked(false);
   ui->paperPathCheck->setChecked(false);
 

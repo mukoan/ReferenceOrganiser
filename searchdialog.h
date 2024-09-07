@@ -12,6 +12,7 @@
 #include <QVector>
 #include <QStringList>
 #include <QThread>
+#include <QRegularExpression>
 
 #include "papermeta.h"
 
@@ -161,6 +162,7 @@ private:
 
   QString papersReadDir;
 
+  QRegularExpression semicolonRegex;
   int numberResults;
   int searchIndex;        ///< Index into search history, 0 = current, 1 = last search, 2 = one before that
 };
