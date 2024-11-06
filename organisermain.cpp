@@ -1646,6 +1646,9 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
   // Set date
   meta.reviewDate = QDate::currentDate();
 
+  // Remove "and" from authors list
+  meta.authors.replace(tr(" and "), ", ", Qt::CaseInsensitive);
+
   // Add any new tags
 
   int tags_added = 0;
