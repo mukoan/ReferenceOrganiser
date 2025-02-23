@@ -97,6 +97,9 @@ private slots:
   /// Clear tag list
   void clearTags();
 
+  /// Tag combo was activated and there is a new selection
+  void tagSelected(int index);
+
   /// Citation was edited, enable/disable save button(s)
   void citationUpdated(const QString &);
 

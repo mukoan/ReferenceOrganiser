@@ -115,6 +115,7 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
 
   connect(ui->viewCombo,             QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                          this, &OrganiserMain::changeViewMode);
+  connect(ui->tagFilterCombo,        &QComboBox::currentIndexChanged,    this, &OrganiserMain::selectCurrentTag);
   connect(ui->tagFilterClearButton,  &QToolButton::released,             this, &OrganiserMain::clearTagFilters);
   connect(ui->tagFilterAddButton,    &QToolButton::released,             this, &OrganiserMain::addCurrentTagFilter);
   connect(ui->tagFilterEdit,         &QLineEdit::textChanged,            this, &OrganiserMain::UpdateView);
@@ -1551,6 +1552,12 @@ void OrganiserMain::addCurrentTagFilter()
   }
 }
 
+// The filter tag combo was changed - add to the tag list
+void OrganiserMain::selectCurrentTag(int)
+{
+  addCurrentTagFilter();
+}
+
 // Edit an existing review
 void OrganiserMain::editReview()
 {
@@ -2196,6 +2203,7 @@ void OrganiserMain::startup()
   }
 
   buildTagList();
+  clearTagFilters();
   ScanPaperPaths();
   UpdateView();
 

@@ -169,6 +169,9 @@ private slots:
   /// Add the current tag selected in the combo to the filter list
   void addCurrentTagFilter();
 
+  /// The filter tag combo was changed - add to the tag list
+  void selectCurrentTag(int);
+
   /// Edit an existing review
   void editReview();
 

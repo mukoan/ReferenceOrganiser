@@ -32,15 +32,16 @@ MetaDialog::MetaDialog(QWidget *parent) :
   ui->reviewDate->setText(QDate::currentDate().toString(QLocale::system().dateFormat(QLocale::ShortFormat)));
 
   connect(ui->venueCombo,        QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MetaDialog::setVenueType);
-  connect(ui->generateButton,    &QPushButton::released,      this, &MetaDialog::generateCite);
-  connect(ui->citationEdit,      &QLineEdit::textChanged,     this, &MetaDialog::citationUpdated);
-  connect(ui->paperSelectButton, &QPushButton::released,      this, &MetaDialog::locatePaper);
-  connect(ui->paperPathEdit,     &QLineEdit::textEdited,      this, &MetaDialog::checkDenyMove);
-  connect(ui->tagAddButton,      &QToolButton::released,      this, &MetaDialog::addTag);
-  connect(ui->tagClearButton,    &QToolButton::released,      this, &MetaDialog::clearTags);
-  connect(ui->buttonBox,         &QDialogButtonBox::rejected, this, &MetaDialog::requestToCancel);
-  connect(ui->buttonBox,         &QDialogButtonBox::accepted, this, &MetaDialog::saveAndClose);
-  connect(saveContinueButton,    &QPushButton::released,      this, &MetaDialog::saveOnly);
+  connect(ui->generateButton,    &QPushButton::released,          this, &MetaDialog::generateCite);
+  connect(ui->citationEdit,      &QLineEdit::textChanged,         this, &MetaDialog::citationUpdated);
+  connect(ui->paperSelectButton, &QPushButton::released,          this, &MetaDialog::locatePaper);
+  connect(ui->paperPathEdit,     &QLineEdit::textEdited,          this, &MetaDialog::checkDenyMove);
+  connect(ui->tagCombo,          &QComboBox::currentIndexChanged, this, &MetaDialog::tagSelected);
+  connect(ui->tagAddButton,      &QToolButton::released,          this, &MetaDialog::addTag);
+  connect(ui->tagClearButton,    &QToolButton::released,          this, &MetaDialog::clearTags);
+  connect(ui->buttonBox,         &QDialogButtonBox::rejected,     this, &MetaDialog::requestToCancel);
+  connect(ui->buttonBox,         &QDialogButtonBox::accepted,     this, &MetaDialog::saveAndClose);
+  connect(saveContinueButton,    &QPushButton::released,          this, &MetaDialog::saveOnly);
 }
 
 MetaDialog::~MetaDialog()
@@ -277,6 +278,7 @@ PaperMeta MetaDialog::GetMeta()
 void MetaDialog::SetTags(const QStringList &tags)
 {
   ui->tagCombo->addItems(tags);
+  clearTags();
 }
 
 // Disable move paper option
@@ -472,6 +474,12 @@ void MetaDialog::addTag()
 void MetaDialog::clearTags()
 {
   ui->tagsEdit->clear();
+}
+
+// Tag combo was activated and there is a new selection
+void MetaDialog::tagSelected(int)
+{
+  addTag();
 }
 
 // React to change in citation
