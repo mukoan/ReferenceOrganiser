@@ -2070,7 +2070,9 @@ bool OrganiserMain::SaveDatabaseAs()
 // New database
 bool OrganiserMain::NewDatabase()
 {
-  CreateDatabaseDialog *dialog = new CreateDatabaseDialog(this);
+  bool required = lastDatabaseFilename.isEmpty();
+
+  CreateDatabaseDialog *dialog = new CreateDatabaseDialog(required, this);
   if(dialog->exec() == QDialog::Accepted)
   {
     if(!db.database.empty())
@@ -2099,6 +2101,11 @@ bool OrganiserMain::NewDatabase()
     lastDatabaseFilename = db_file;
     UpdateView();
     return(true);
+  }
+  else
+  {
+    // User chose to quit
+    if(required) Quit();
   }
 
   return(false);
@@ -2141,8 +2148,6 @@ void OrganiserMain::LoadPreviousDatabase()
   if(filename.isEmpty())
     return;
 
-  // FIXME  save current database and clear!
-
   if(!db.Load(filename.toUtf8().constData()))
   {
     qDebug() << "Failed to open database " << filename << "\n";
@@ -2163,7 +2168,7 @@ void OrganiserMain::LoadPreviousDatabase()
 // Close
 void OrganiserMain::closeEvent(QCloseEvent *)
 {
-  saveDatabase();
+  if(!lastDatabaseFilename.isEmpty()) saveDatabase();
   saveSettings();
 }
 
@@ -2179,8 +2184,11 @@ void OrganiserMain::startup()
     success = db.Load(lastDatabaseFilename.toUtf8().constData());
     ui->busyWidget->stop();
 
-    if(!success)
+    if(!success) {
       qDebug() << "Could not load database <" << lastDatabaseFilename.toUtf8().constData() << ">\n";
+      QMessageBox::critical(this, tr("Database not found"),
+                            tr("Could not load papers database from %1").arg(lastDatabaseFilename));
+    }
   }
 
   if(!success)
@@ -2192,13 +2200,10 @@ void OrganiserMain::startup()
 
     if(!NewDatabase())
     {
-      /* No database set so use default filename
+      // QMessageBox::critical(this, tr("No database"), tr("You <b>must</b> create a new database otherwise all work will be lost."));
 
-      QString documents_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-      if(documents_path.isEmpty()) documents_path = QDir::homePath();
-      QString fallback_filename = QString("%1/%2").arg(documents_path).arg("papers.rodb");
-       */
-      QMessageBox::critical(this, tr("No database"), tr("You <b>must</b> create a new database otherwise all work will be lost."));
+      qDebug() << tr("ReferenceOrganiser cannot run without database");
+      return;
     }
   }
 
@@ -2225,8 +2230,9 @@ bool OrganiserMain::saveDatabase()
 // Save database periodically
 void OrganiserMain::periodicSave()
 {
-  if(!saveDatabase())
-    qDebug() << "Failed to save database periodically";
+  if(!lastDatabaseFilename.isEmpty())
+    if(!saveDatabase())
+      qDebug() << "Failed to save database periodically";
 }
 
 // Generate a citation key for the given authors and year

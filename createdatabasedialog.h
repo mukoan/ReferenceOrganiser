@@ -10,6 +10,8 @@
 
 #include <QDialog>
 
+#include "ui_createdatabasedialog.h"
+
 namespace Ui {
 class CreateDatabaseDialog;
 }
@@ -19,7 +21,7 @@ class CreateDatabaseDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit CreateDatabaseDialog(QWidget *parent = nullptr);
+  explicit CreateDatabaseDialog(bool answer_required, QWidget *parent = nullptr);
   ~CreateDatabaseDialog();
 
     /// Get name of new database

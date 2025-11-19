@@ -6,14 +6,20 @@
  */
 
 #include "createdatabasedialog.h"
-#include "ui_createdatabasedialog.h"
+
 
 #include <QStandardPaths>
 #include <QFileDialog>
+#include <QPushButton>
 
-CreateDatabaseDialog::CreateDatabaseDialog(QWidget *parent) : QDialog(parent), ui(new Ui::CreateDatabaseDialog)
+CreateDatabaseDialog::CreateDatabaseDialog(bool answer_required, QWidget *parent) : QDialog(parent), ui(new Ui::CreateDatabaseDialog)
 {
   ui->setupUi(this);
+
+  if(answer_required) {
+    QPushButton *reject_button = ui->buttonBox->button(QDialogButtonBox::Cancel);
+    reject_button->setText(tr("Quit"));
+  }
 
   connect(ui->actionCombo,              &QComboBox::currentIndexChanged, this, &CreateDatabaseDialog::respondModeChange);
   connect(ui->databaseFileSelectButton, &QToolButton::released,          this, &CreateDatabaseDialog::chooseDatabaseFile);
