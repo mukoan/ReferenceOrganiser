@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bibliography version="1" name="Example Paper Database">
+    <record citation="KlugerRosenhahn2024">
+        <review>We present a real-time method for robust estimation of multiple instances
+of geometric models from noisy data. Geometric models such as vanishing points,
+planar homographies or fundamental matrices are essential for 3D scene analysis.
+Previous approaches discover distinct model instances in an iterative manner,
+thus limiting their potential for speedup via parallel computation. In contrast,
+our method detects all model instances independently and in parallel. A neural
+network segments the input data into clusters representing potential model
+instances by predicting multiple sets of sample and inlier weights. Using the
+predicted weights, we determine the model parameters for each potential instance
+separately in a RANSAC-like fashion. We train the neural network via
+task-specific loss functions, i.e. we do not require a ground-truth segmentation
+of the input data. As suitable training data for homography and fundamental
+matrix fitting is scarce, we additionally present two new synthetic datasets. We
+demonstrate state-of-the-art performance on these as well as multiple established
+datasets, with inference times as small as five milliseconds per image. </review>
+        <venue>Preprint</venue>
+        <authors>Florian Kluger, Bodo Rosenhahn</authors>
+        <title>PARSAC: Accelerating Robust Multi-Model Fitting with Parallel Sample Consensus</title>
+        <year>2024</year>
+        <url>https://arxiv.org/abs/2401.14919</url>
+        <reviewDate>Thu Nov 20 2025</reviewDate>
+        <reader>
+            <understanding>1</understanding>
+            <rating>1</rating>
+        </reader>
+    </record>
+    <record citation="LiMaQiu2024">
+        <review>Current techniques in Visual Simultaneous Localization and Mapping
+(VSLAM) estimate camera displacement by comparing image features of
+consecutive scenes. These algorithms depend on scene continuity, hence
+requires frequent camera inputs. However, processing images frequently
+can lead to significant memory usage and computation overhead. In this
+study, we introduce SemanticSLAM, an end-to-end visual-inertial odometry
+system that utilizes semantic features extracted from an RGB-D sensor.
+This approach enables the creation of a semantic map of the environment
+and ensures reliable camera localization. SemanticSLAM is scene-agnostic,
+which means it doesn't require retraining for different environments. It
+operates effectively in indoor settings, even with infrequent camera input,
+without prior knowledge. The strength of SemanticSLAM lies in its ability
+to gradually refine the semantic map and improve pose estimation. This
+is achieved by a convolutional long-short-term-memory (ConvLSTM) network,
+trained to correct errors during map construction. Compared to existing
+VSLAM algorithms, SemanticSLAM improves pose estimation by 17%. The
+resulting semantic map provides interpretable information about the
+environment and can be easily applied to various downstream tasks, such
+as path planning, obstacle avoidance, and robot navigation.</review>
+        <venue>Preprint</venue>
+        <authors>Mingyang Li, Yue Ma, Qinru Qiu</authors>
+        <title>SemanticSLAM: Learning based Semantic Map Construction and Robust Camera Localization</title>
+        <year>2024</year>
+        <url>https://arxiv.org/abs/2401.13076,https://github.com/Leomingyangli/SemanticSLAM</url>
+        <reviewDate>Thu Nov 20 2025</reviewDate>
+        <tags>reconstruction</tags>
+        <reader>
+            <understanding>1</understanding>
+            <rating>1</rating>
+        </reader>
+    </record>
+    <record citation="LinEtAl2024">
+        <review>While numerous 3D reconstruction and novel-view synthesis methods allow
+for photorealistic rendering of a scene from multi-view images easily
+captured with consumer cameras, they bake illumination in their
+representations and fall short of supporting advanced applications like
+material editing, relighting, and virtual object insertion. The
+reconstruction of physically based material properties and lighting
+via inverse rendering promises to enable such applications.
+However, most inverse rendering techniques require high dynamic range
+(HDR) images as input, a setting that is inaccessible to most users.
+We present a method that recovers the physically based material
+properties and spatially-varying HDR lighting of a scene from multi-view,
+low-dynamic-range (LDR) images. We model the LDR image formation process
+in our inverse rendering pipeline and propose a novel optimization
+strategy for material, lighting, and a camera response model. We
+evaluate our approach with synthetic and real scenes compared to the
+state-of-the-art inverse rendering methods that take either LDR or HDR
+input. Our method outperforms existing methods taking LDR images as
+input, and allows for highly realistic relighting and object insertion.</review>
+        <venue>Preprint</venue>
+        <authors>Zhi-Hao Lin, Jia-Bin Huang, Zhengqin Li, Zhao Dong, Christian Richardt, Tuotuo Li, Michael Zollhöfer, Johannes Kopf, Shenlong Wang, Changil Kim</authors>
+        <title>IRIS: Inverse Rendering of Indoor Scenes from Low Dynamic Range Images</title>
+        <year>2024</year>
+        <url>https://irisldr.github.io/,https://arxiv.org/abs/2401.12977</url>
+        <reviewDate>Thu Nov 20 2025</reviewDate>
+        <reader>
+            <understanding>1</understanding>
+            <rating>1</rating>
+        </reader>
+    </record>
+</bibliography>
