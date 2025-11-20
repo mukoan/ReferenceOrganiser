@@ -336,7 +336,7 @@ void MetaDialog::generateCite()
 void MetaDialog::saveAndClose()
 {
   PaperMeta meta = GetMeta();
-  if(meta.citation.isEmpty()) // TODO or whitespace
+  if(meta.citation.trimmed().isEmpty())
   {
     QMessageBox::warning(this, tr("No Citation Set"),
                          tr("Please set a citation before saving"),
