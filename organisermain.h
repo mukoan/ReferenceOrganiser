@@ -86,8 +86,8 @@ public slots:
   /// Open new database dialog
   bool NewDatabase();
 
-  /// Open load previous database dialog
-  void LoadPreviousDatabase();
+  /// Open load database dialog
+  void LoadDatabase();
 
 signals:
   /// New citation was made by generateKey()

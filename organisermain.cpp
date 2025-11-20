@@ -95,7 +95,7 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
   connect(ui->actionCurrentDetails,  &QAction::triggered,                this, &OrganiserMain::showDatabaseDetails);
   connect(ui->actionName,            &QAction::triggered,                this, &OrganiserMain::DatabaseName);
   connect(ui->actionNewDatabase,     &QAction::triggered,                this, &OrganiserMain::NewDatabase);
-  connect(ui->actionLoad_Previous_Database, &QAction::triggered,         this, &OrganiserMain::LoadPreviousDatabase);
+  connect(ui->actionLoadDatabase,    &QAction::triggered,                this, &OrganiserMain::LoadDatabase);
   connect(ui->actionSave_As,         &QAction::triggered,                this, &OrganiserMain::SaveDatabaseAs);
   connect(ui->actionPreferences,     &QAction::triggered,                this, &OrganiserMain::Settings);
   connect(ui->actionStatus,          &QAction::triggered,                this, &OrganiserMain::showStatus);
@@ -2112,7 +2112,7 @@ bool OrganiserMain::NewDatabase()
 }
 
 // Load previous database
-void OrganiserMain::LoadPreviousDatabase()
+void OrganiserMain::LoadDatabase()
 {
   // Save current database first, if necessary
   if(!db.database.empty())
@@ -2123,6 +2123,16 @@ void OrganiserMain::LoadPreviousDatabase()
       return;
     }
   }
+
+  QString documents_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+  if(documents_path.isEmpty()) documents_path = QDir::homePath();
+
+  // Get filename to load
+  QString filename = QFileDialog::getOpenFileName(this, tr("Load Database"),
+                                                          documents_path,
+                                                          tr("Database files (*.rodb *.xml)"));
+  if(filename.isEmpty())
+    return;
 
   // Clear current database
 
@@ -2137,16 +2147,6 @@ void OrganiserMain::LoadPreviousDatabase()
 
   tags.clear();
   clearTagFilters();
-
-  QString documents_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  if(documents_path.isEmpty()) documents_path = QDir::homePath();
-
-  // Get filename to load
-  QString filename = QFileDialog::getOpenFileName(this, tr("Load Database"),
-                                                          documents_path,
-                                                          tr("Database files (*.rodb *.xml)"));
-  if(filename.isEmpty())
-    return;
 
   if(!db.Load(filename.toUtf8().constData()))
   {
