@@ -115,7 +115,10 @@ OrganiserMain::OrganiserMain(QWidget *parent) :
 
   connect(ui->viewCombo,             QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                          this, &OrganiserMain::changeViewMode);
-  connect(ui->tagFilterCombo,        &QComboBox::currentIndexChanged,    this, &OrganiserMain::selectCurrentTag);
+
+  // Following is too disconcerting in main window if a new tag gets added; use the + button instead
+  // connect(ui->tagFilterCombo,        &QComboBox::currentIndexChanged,    this, &OrganiserMain::selectCurrentTag);
+
   connect(ui->tagFilterClearButton,  &QToolButton::released,             this, &OrganiserMain::clearTagFilters);
   connect(ui->tagFilterAddButton,    &QToolButton::released,             this, &OrganiserMain::addCurrentTagFilter);
   connect(ui->tagFilterEdit,         &QLineEdit::textChanged,            this, &OrganiserMain::UpdateView);
@@ -1607,8 +1610,8 @@ void OrganiserMain::editReview()
   MetaDialog *edit_dialog = new MetaDialog(this);
   edit_dialog->setWindowTitle(tr("Edit Review"));
   edit_dialog->SetReadPapersDir(readPapersPath);
-  edit_dialog->SetMeta(meta);
   edit_dialog->SetTags(tags);
+  edit_dialog->SetMeta(meta);
   edit_dialog->SetEditFont(prefReviewEditFontName, prefReviewEditFontSize);
 
   if(!lastPaperPath.isEmpty()) edit_dialog->SetPaperHuntDir(lastPaperPath);
