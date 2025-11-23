@@ -269,7 +269,7 @@ PaperMeta MetaDialog::GetMeta()
     my_paper.reviewer.commentsToChairEditor = ui->commentsToChairEdit->toPlainText();
   }
 
-  my_paper.ingest           = ui->movePapersCheck->isChecked();
+  my_paper.ingest = ui->movePapersCheck->isChecked();
 
   return(my_paper);
 }
@@ -351,7 +351,8 @@ void MetaDialog::saveAndClose()
 void MetaDialog::saveOnly()
 {
   PaperMeta meta = GetMeta();
-  originalCopy = meta;
+  originalCopy   = meta;
+  meta.ingest    = false;      // Don't move paper to read folder at this time
   emit updatedDetails(meta);
 }
 

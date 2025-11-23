@@ -1696,7 +1696,6 @@ void OrganiserMain::modifyOrNew(PaperMeta &meta)
     }
 
  /*
-
     // Check path
     if(meta.paperPath.indexOf(readPapersPath) == 0)
       std::cerr << "Paper has already been ingested\n";
