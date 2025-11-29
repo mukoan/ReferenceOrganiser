@@ -12,7 +12,7 @@ Source is under [GNU GPL 3](https://www.gnu.org/licenses/gpl.html).
 # Dependencies
 
 You will need [Qt](http://qt.io) version 6. Current code is being maintained on
-Qt 6.5.2.
+Qt 6.9.
 
 # Building
 

@@ -2156,7 +2156,9 @@ void OrganiserMain::LoadDatabase()
     lastDatabaseFilename.clear();
     db.database.clear();
     db.databaseName.clear();
-    // FIXME any work added now probably won't get saved
+
+    // A new database must be created or another database loaded
+    QTimer::singleShot(0, this, &OrganiserMain::NewDatabase);
   }
   else
   {
