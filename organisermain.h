@@ -20,7 +20,7 @@
 #include "reviewscanner.h"
 #include "history.h"
 
-#define VERSION "1.3"
+#define VERSION "1.4"
 
 /// Maximum number of history items to show in the menu
 #define MAX_HISTORY_ENTRIES 15

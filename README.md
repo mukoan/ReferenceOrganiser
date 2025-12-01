@@ -19,13 +19,16 @@ Qt 6.9.
 I am not offering binaries at this time.
 
 * Clone the repo
-* Run qmake on the pro file, e.g. `qmake ReferenceOrganiser.pro -o Makefile` 
+* Run qmake on the pro file, e.g. `qmake ReferenceOrganiser.pro -o Makefile`
 * `make`
 * Alternatively load the pro file into QtCreator and build from there
 
+Test Reference Organiser by selecting Database - Load from the menu and
+opening the `example.rodb` file.
+
 # Instructions
 
-Full instructions and latest details are available from [lyndonhill.com](http://www.lyndonhill.com/Projects/referenceorganiser.html).
+Full instructions and latest details are available from [lyndonhill.com](https://www.lyndonhill.com/projects/referenceorganiser.html).
 
 Since version 1.3 all paper reviews are stored in a flat file database, you can import
 the old style reviews
